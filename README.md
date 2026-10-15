@@ -72,6 +72,45 @@ An explicitly empty value disables download links. Restart dev or rebuild after 
 this value; Vite embeds it in the frontend bundle. A fork must publish the same stable
 installer filename, `Tier-Studio-windows-x64-setup.exe`, for its download link to work.
 
+## Deploy the web app
+
+`wrangler.jsonc` deploys `dist/web/` to Cloudflare Workers Static Assets. No Worker
+script, database, or paid compute is needed. SPA routing serves `index.html` for
+navigation to routes such as `/projects/:id`. The `_headers` file caches hashed
+assets for a year and revalidates the HTML, manifest, and service-worker entry files.
+
+```sh
+bun run cloudflare:login     # One-time Wrangler sign-in, separate from the Codex plugin
+bun run deploy:web:check     # Production build and deployment validation
+bun run deploy:web           # Build and publish
+bun run preview             # Preview the production web build locally
+```
+
+To deploy automatically, connect `kama-08/tier-studio` to the `tier-studio` Worker
+under Cloudflare → Settings → Builds, with `main` as the production branch. Use
+`bun install --frozen-lockfile && bun run typecheck && bun run lint && bun run test && bun run build`
+as the build command and `bun --bun run wrangler deploy` as the deploy command.
+Pin `BUN_VERSION=1.3.14` in the build environment. GitHub authorization and a
+Cloudflare build token must be configured for this integration.
+
+The existing browser suite can target a deployment without starting a local server:
+
+```powershell
+$env:TEST_BASE_URL = 'https://YOUR-DEPLOYMENT.workers.dev'
+$env:TEST_PRODUCTION = '1'
+bun run test:e2e --workers=2
+Remove-Item Env:TEST_BASE_URL, Env:TEST_PRODUCTION
+```
+
+Wrangler 4.151.0's local `dev` server is incompatible with Bun 1.3.14 on Windows;
+see [dependency notes](docs/dependency-notes.md). Use the Vite production preview
+locally and verify Cloudflare's routing and headers on the deployed URL. The
+Wrangler dry-run command works under Bun; authentication and live deployment
+still require a separate Wrangler sign-in.
+
+Projects remain in the visitor's browser. Export `.tier` files before moving from
+localhost or changing the production domain; storage does not transfer between origins.
+
 ## Publish a Windows release
 
 Update the version in `package.json`, `src-tauri/Cargo.toml`, and

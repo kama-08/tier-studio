@@ -1,8 +1,32 @@
 # Dependency compatibility notes
 
-Observed on Windows x64 with Bun 1.3.14 and Playwright/playwright-core 1.64.0. No installed dependency files were modified.
+No installed dependency files were modified during these investigations.
+
+## Wrangler local preview under Bun on Windows
+
+Observed with Wrangler 4.151.0, its Miniflare 5.20261012.0-beta dependency, and
+Bun 1.3.14 on Windows x64. The exercised command is
+`bun --bun run wrangler dev --port 1423 --local`. It reports a ready local server,
+but HTTP navigation to the static app times out. A separate reproduction with
+only an `index.html` and an assets-only Wrangler config also failed, with
+`this.#runtimeDispatcher?.close is not a function` during local-runtime reload.
+Wrangler explicitly warns that it does not support the Bun runtime; its package
+declares Node.js >=22. This is an unsupported runtime combination, not an
+established application defect or a confirmed new upstream bug.
+
+Using Miniflare's exported `convertV4MiniflareOptions` and `Miniflare` directly
+under the same Bun runtime returned HTTP 200 for both a plain Worker and a static
+HTML asset. That narrows the observed failure to the Wrangler local-dev integration
+but does not establish its exact cause. No dependency source was modified. The
+project uses Vite for local production previews; deployment dry-run validation
+succeeds under Bun, and the browser suite can verify the actual Cloudflare URL.
+Further isolation of Wrangler's dev dispatcher would be required before proposing
+an upstream fix or contribution.
 
 ## Browser installation through bunx
+
+The following browser transport investigations used Windows x64, Bun 1.3.14, and
+Playwright/playwright-core 1.64.0.
 
 Reproduction:
 
