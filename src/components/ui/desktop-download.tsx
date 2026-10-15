@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ArrowUpRight, Download, CodeXml, Monitor } from 'lucide-react';
+import { ArrowUpRight, Download, Monitor } from 'lucide-react';
 import { isDesktop } from '@/app/services';
 import { publicRepository } from '@/app/distribution';
 import { Button, buttonStyles } from './button';
 import { Dialog } from './dialog';
+import { GitHubIcon } from './github-icon';
 
 export function DesktopDownloadButton({ sidebar = false }: { sidebar?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +58,7 @@ export function DesktopDownloadButton({ sidebar = false }: { sidebar?: boolean }
                 rel="noopener noreferrer"
                 className={buttonStyles({ variant: 'ghost' })}
               >
-                <CodeXml size={16} aria-hidden="true" /> GitHub
+                <GitHubIcon /> GitHub
                 <ArrowUpRight size={14} aria-hidden="true" />
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>

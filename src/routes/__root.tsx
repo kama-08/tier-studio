@@ -1,5 +1,5 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { ArrowUpRight, Grid2X2, Settings2, CloudOff, CodeXml } from 'lucide-react';
+import { ArrowUpRight, Grid2X2, Settings2, CloudOff } from 'lucide-react';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { useThemeSynchronization } from '@/app/theme';
@@ -7,6 +7,7 @@ import { useSidebarStore } from '@/app/layout';
 import { isDesktop } from '@/app/services';
 import { publicRepository } from '@/app/distribution';
 import { DesktopDownloadButton } from '@/components/ui/desktop-download';
+import { GitHubIcon } from '@/components/ui/github-icon';
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -69,7 +70,7 @@ function RootLayout() {
                   rel="noopener noreferrer"
                   className="sidebar-github"
                 >
-                  <CodeXml size={16} aria-hidden="true" /> GitHub
+                  <GitHubIcon /> GitHub
                   <ArrowUpRight size={13} aria-hidden="true" />
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
