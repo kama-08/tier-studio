@@ -128,7 +128,7 @@ GitHub Actions runs the Bun checks, web production build and browser suite on Li
 
 See [dependency notes](docs/dependency-notes.md) for the Bun/Playwright compatibility investigation and the test fixture's scoped workaround.
 
-On Windows, `bun run test:desktop` builds the debug desktop app and checks tray registration, close-to-tray, and restoring the existing window after a second launch. Close any running desktop instance first. The check uses temporary storage and verifies that project data and undo history survive hiding and restoring the window. It also injects a storage failure and delayed writes to verify that Quit permits recovery, waits for commits, and retains the last focused input after reopening.
+On Windows, `bun run test:desktop` builds the debug desktop app and checks tray registration, close-to-tray, and restoring the existing window after a second launch. Each run uses temporary storage and its own single-instance identifier, so it can run alongside the ordinary desktop app. The check verifies that project data and undo history survive hiding and restoring the window. It also injects a storage failure and delayed writes to verify that Quit permits recovery, waits for commits, and retains the last focused input after reopening. Startup failures include native stage logs and the owned process tree; CI preserves the log as a `native-desktop-results` artifact.
 
 ## License
 
