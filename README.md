@@ -2,6 +2,8 @@
 
 An offline tier list editor for the web and desktop. Built with React, TypeScript, Vite, TanStack Router, and Tauri 2. Bun manages dependencies and runs the JavaScript tooling.
 
+[Download for Windows (x64)](https://github.com/kama-08/tier-studio/releases/latest/download/Tier-Studio-windows-x64-setup.exe) · [Release notes](https://github.com/kama-08/tier-studio/releases/latest)
+
 ## Run
 
 ```sh
@@ -58,22 +60,47 @@ Browser and desktop libraries live in separate storage locations. Transfer a `.t
 The web app offers **Download desktop** in the sidebar and Settings. Its dialog explains
 how to move projects with a `.tier` file. Download actions are hidden in the native app.
 
-Once the first desktop installer release is published, copy `.env.example` to
-`.env.local` and set `VITE_PUBLIC_REPOSITORY_URL=https://github.com/kama-08/tier-studio`.
-Restart the dev server or rebuild after changing
-it. Only repository URLs on `github.com` are accepted; branch, release, and asset URLs
-are not repository URLs. Vite embeds this public value in the frontend bundle.
+The dialog downloads the Windows x64 installer directly and offers release notes and
+GitHub source links. Official downloads work without environment configuration. The
+installer installs for the current account and includes an installation-folder selection
+page. Version 0.1.0 is unsigned, so Windows may display an unknown-publisher warning.
+Each release includes `SHA256SUMS.txt` to verify the installer download.
 
-The dialog links to the repository's latest release, where users select the Windows
-`.exe` installer, and provides a separate GitHub source link. No versioned asset names
-are hardcoded. Until a valid repository URL is configured, it shows **Downloads coming
-soon** and creates no external links. The private development repository is not a fallback.
+Forks can copy `.env.example` to `.env.local` and change `VITE_PUBLIC_REPOSITORY_URL`.
+Use a repository URL on `github.com`; branch, release, and asset URLs are rejected.
+An explicitly empty value disables download links. Restart dev or rebuild after changing
+this value; Vite embeds it in the frontend bundle. A fork must publish the same stable
+installer filename, `Tier-Studio-windows-x64-setup.exe`, for its download link to work.
 
-Upload the Windows NSIS installer produced by `bun run desktop:build` to GitHub Releases.
-It installs for the current user by default and retains the standard installation-folder
-selection page. The web app does not choose the installation folder. GitHub Pages may
-host the web frontend or a download landing page; installers belong in GitHub Releases.
-Release publication and automatic desktop updates are not configured yet.
+## Publish a Windows release
+
+Update the version in `package.json`, `src-tauri/Cargo.toml`, and
+`src-tauri/tauri.conf.json`, refresh `src-tauri/Cargo.lock` with Cargo, and add
+`docs/releases/X.Y.Z.md`. Commit and push those changes, then tag that commit:
+
+```sh
+bun run release:validate v0.1.0
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Use the new version in place of `0.1.0` for later releases. The **Windows release**
+workflow runs the web/browser and native desktop checks, builds a release-mode Windows
+x64 NSIS installer, and publishes it with its SHA-256 checksum. It validates the tag
+against all three manifests and requires version-specific release notes. Assets upload
+to a draft before publication; reruns can resume a draft but cannot overwrite a published
+release. A manual workflow run must select an existing version tag.
+
+For a local Windows build:
+
+```sh
+bun run desktop:build:windows
+bun run release:prepare v0.1.0
+```
+
+The stable installer and checksum are written to ignored `release-artifacts/`.
+Signing certificates and automatic desktop updates are not configured. GitHub Pages
+can host the web frontend; installers are distributed through GitHub Releases.
 
 ## Structure
 
@@ -124,7 +151,7 @@ Remove-Item Env:TEST_PRODUCTION
 
 `bun run fmt` formats with Oxfmt; `bun run lint:fix` applies Oxlint fixes. Vitest covers commands, history, project validation, archive round trips, concurrent saves, bounded jobs, and text wrapping. Playwright covers editing, conflict recovery, image cleanup and thumbnails, export preview and downloads, file import, dragging/cancellation, narrow layouts, and production offline behavior. Browser tests use Chromium.
 
-GitHub Actions runs the Bun checks, web production build and browser suite on Linux, plus a native debug build and lifecycle smoke check on Windows. The workflow runs on pushes and pull requests; it does not publish releases or deploy the app.
+GitHub Actions runs the Bun checks, web production build and browser suite on Linux, plus a native debug build and lifecycle smoke check on Windows. CI runs on branch pushes and pull requests. Version tag pushes run those same checks through the Windows release workflow before building and publishing an installer. Web hosting is not deployed by these workflows.
 
 See [dependency notes](docs/dependency-notes.md) for the Bun/Playwright compatibility investigation and the test fixture's scoped workaround.
 

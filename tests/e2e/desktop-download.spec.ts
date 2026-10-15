@@ -17,10 +17,14 @@ test('desktop downloads explain project transfer and use the configured public r
   await expect(dialog.getByText('Your browser and desktop libraries are separate.')).toBeVisible();
   await expect(dialog.getByText('Import the .tier file in the desktop app.')).toBeVisible();
   if (links) {
-    const release = dialog.getByRole('link', { name: /View latest release/ });
-    await expect(release).toHaveAttribute('href', links.releases);
-    await expect(release).toHaveAttribute('target', '_blank');
-    await expect(release).toHaveAttribute('rel', 'noopener noreferrer');
+    const download = dialog.getByRole('link', { name: /Download for Windows/ });
+    await expect(download).toHaveAttribute('href', links.windowsInstaller);
+    await expect(download).toHaveAttribute('target', '_blank');
+    await expect(download).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(dialog.getByRole('link', { name: /Release notes/ })).toHaveAttribute(
+      'href',
+      links.releases,
+    );
     await expect(dialog.getByRole('link', { name: /GitHub/ })).toHaveAttribute(
       'href',
       links.repository,

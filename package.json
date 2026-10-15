@@ -24,7 +24,10 @@
     "test:install": "bun ./node_modules/playwright/cli.js install chromium",
     "tauri": "bun ./node_modules/@tauri-apps/cli/tauri.js",
     "desktop:dev": "bun run tauri dev",
-    "desktop:build": "bun run tauri build"
+    "desktop:build": "bun run tauri build",
+    "desktop:build:windows": "bun run tauri build --target x86_64-pc-windows-msvc --bundles nsis -- --locked",
+    "release:validate": "bun scripts/release.ts validate",
+    "release:prepare": "bun scripts/release.ts prepare"
   },
   "dependencies": {
     "@dnd-kit/dom": "^0.5.0",

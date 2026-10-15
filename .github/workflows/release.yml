@@ -1,0 +1,78 @@
+name: Windows release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  windows:
+    needs: checks
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          cache-on-failure: true
+      - run: bun install --frozen-lockfile
+      - name: Validate release tag and versions
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -notlike 'refs/tags/*') {
+            throw 'Run this workflow from a version tag, not a branch.'
+          }
+          bun run release:validate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build Windows x64 installer
+        run: bun run desktop:build:windows
+      - name: Prepare installer and checksum
+        run: bun run release:prepare
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-installer
+          path: release-artifacts/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          $version = $tag.Substring(1)
+          $releases = gh release list --repo $env:GITHUB_REPOSITORY --limit 100 --json tagName,isDraft
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $existing = $releases | ConvertFrom-Json | Where-Object { $_.tagName -eq $tag }
+          if ($existing -and -not $existing.isDraft) {
+            throw "Release $tag is already published; refusing to replace its assets."
+          }
+          if (-not $existing) {
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --verify-tag --draft --title "Tier Studio $tag" --notes-file "docs/releases/$version.md"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          gh release upload $tag release-artifacts/Tier-Studio-windows-x64-setup.exe release-artifacts/SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

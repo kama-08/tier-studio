@@ -1454,12 +1454,19 @@ input:focus-visible {
 .download-transfer li + li {
   margin-top: 6px;
 }
+.download-release-links,
 .download-actions {
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 24px;
+}
+.download-release-links {
+  justify-content: flex-start;
+}
+.download-release-links + .download-actions {
+  margin-top: 12px;
 }
 .color-picker-row {
   display: flex;

@@ -27,6 +27,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "kama-08",
+    "homepage": "https://github.com/kama-08/tier-studio",
+    "shortDescription": "An offline tier list editor",
+    "licenseFile": "../LICENSE",
     "windows": {
       "nsis": {
         "installMode": "currentUser"

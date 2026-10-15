@@ -31,7 +31,7 @@ export function DesktopDownloadButton({ sidebar = false }: { sidebar?: boolean }
           </div>
           <div>
             <h3>Tier Studio for Windows</h3>
-            <p>.exe installer</p>
+            <p>Windows 10 / 11 · 64-bit .exe installer</p>
           </div>
         </div>
         <p className="download-detail">
@@ -48,9 +48,9 @@ export function DesktopDownloadButton({ sidebar = false }: { sidebar?: boolean }
         {!publicRepository ? (
           <p className="download-detail">The first desktop release is coming soon.</p>
         ) : null}
-        <div className="download-actions">
-          {publicRepository ? (
-            <>
+        {publicRepository ? (
+          <>
+            <div className="download-release-links">
               <a
                 href={publicRepository.repository}
                 target="_blank"
@@ -65,18 +65,31 @@ export function DesktopDownloadButton({ sidebar = false }: { sidebar?: boolean }
                 href={publicRepository.releases}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={buttonStyles({ variant: 'primary' })}
+                className={buttonStyles({ variant: 'ghost' })}
               >
-                View latest release <ArrowUpRight size={16} aria-hidden="true" />
+                Release notes <ArrowUpRight size={14} aria-hidden="true" />
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
-            </>
-          ) : (
+            </div>
+            <div className="download-actions">
+              <a
+                href={publicRepository.windowsInstaller}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonStyles({ variant: 'primary' })}
+              >
+                <Download size={16} aria-hidden="true" /> Download for Windows
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </div>
+          </>
+        ) : (
+          <div className="download-actions">
             <Button variant="primary" disabled>
               Downloads coming soon
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </Dialog>
     </>
   );

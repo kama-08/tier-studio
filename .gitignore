@@ -4,6 +4,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+release-artifacts/
 src-tauri/target/
 src-tauri/gen/
 .env
