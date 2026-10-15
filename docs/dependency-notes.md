@@ -2,6 +2,30 @@
 
 No installed dependency files were modified during these investigations.
 
+## Wrangler device login under Bun on Windows
+
+With Wrangler 4.151.0 and Bun 1.3.14 on Windows x64, both
+`bun --bun run wrangler login --device --browser=false` and a direct invocation
+of `wrangler-dist/cli.js` exited with code 0 without the expected
+`Successfully logged in` message. Browser approval succeeded in a regular
+browser, but a subsequent `whoami` still reported unauthenticated.
+
+The exercised implementation is `getOauthTokenViaDeviceFlow` and `login` in
+Wrangler's bundled `@cloudflare/workers-auth`: it polls the device token endpoint,
+then writes the returned grant through the credential store before logging
+success. The observed silent exit does not establish whether polling, the runtime,
+or persistence failed. Wrangler explicitly does not support Bun, so this remains
+an unresolved compatibility observation, not a confirmed upstream defect. No
+dependency source was modified and no upstream issue was posted. A focused
+regression test would approve a device grant, wait for the success message, and
+verify authentication in a new process.
+
+The web app was instead deployed through the connected Cloudflare API, using Bun
+to upload assets with short-lived upload-session tokens. No persistent deployment
+credential was added to the repository. The deployed site passed the production
+browser suite; successful deployment does not imply that local Wrangler login
+has been fixed.
+
 ## Wrangler local preview under Bun on Windows
 
 Observed with Wrangler 4.151.0, its Miniflare 5.20261012.0-beta dependency, and

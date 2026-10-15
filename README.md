@@ -2,7 +2,7 @@
 
 An offline tier list editor for the web and desktop. Built with React, TypeScript, Vite, TanStack Router, and Tauri 2. Bun manages dependencies and runs the JavaScript tooling.
 
-[Download for Windows (x64)](https://github.com/kama-08/tier-studio/releases/latest/download/Tier-Studio-windows-x64-setup.exe) · [Release notes](https://github.com/kama-08/tier-studio/releases/latest)
+[Open the web app](https://tier-studio.kama-08.workers.dev) · [Download for Windows (x64)](https://github.com/kama-08/tier-studio/releases/latest/download/Tier-Studio-windows-x64-setup.exe) · [Release notes](https://github.com/kama-08/tier-studio/releases/latest)
 
 ## Run
 
@@ -74,6 +74,10 @@ installer filename, `Tier-Studio-windows-x64-setup.exe`, for its download link t
 
 ## Deploy the web app
 
+The official web app is live at **https://tier-studio.kama-08.workers.dev**.
+See [hosting notes](docs/hosting.md) for the deployment method, verification, and
+automatic-deployment status.
+
 `wrangler.jsonc` deploys `dist/web/` to Cloudflare Workers Static Assets. No Worker
 script, database, or paid compute is needed. SPA routing serves `index.html` for
 navigation to routes such as `/projects/:id`. The `_headers` file caches hashed
@@ -106,7 +110,10 @@ Wrangler 4.151.0's local `dev` server is incompatible with Bun 1.3.14 on Windows
 see [dependency notes](docs/dependency-notes.md). Use the Vite production preview
 locally and verify Cloudflare's routing and headers on the deployed URL. The
 Wrangler dry-run command works under Bun; authentication and live deployment
-still require a separate Wrangler sign-in.
+through that command require a separate Wrangler sign-in. The initial deployment
+used the connected Cloudflare plugin's API and Bun for asset uploads. Local
+Wrangler device login did not save credentials; see the dependency notes before
+relying on that flow.
 
 Projects remain in the visitor's browser. Export `.tier` files before moving from
 localhost or changing the production domain; storage does not transfer between origins.
