@@ -1,0 +1,14 @@
+{
+  "semi": true,
+  "singleQuote": true,
+  "printWidth": 100,
+  "ignorePatterns": [
+    "src/routeTree.gen.ts",
+    "src-tauri/target",
+    "src-tauri/gen",
+    "bun.lock",
+    "dist",
+    "test-results",
+    "playwright-report"
+  ]
+}

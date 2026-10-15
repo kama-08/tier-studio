@@ -1,0 +1,22 @@
+[package]
+name = "tier-studio"
+version = "0.1.0"
+description = "An offline-first tier list editor"
+license = "MIT"
+repository = "https://github.com/kama-08/tier-studio"
+edition = "2021"
+
+[lib]
+name = "tier_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+
+[target.'cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))'.dependencies]
+tauri-plugin-single-instance = "2"
