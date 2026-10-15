@@ -21,6 +21,7 @@ test('desktop downloads explain project transfer and use the configured public r
     await expect(download).toHaveAttribute('href', links.windowsInstaller);
     await expect(download).toHaveAttribute('target', '_blank');
     await expect(download).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(download).toHaveCSS('color', 'rgb(24, 24, 27)');
     await expect(dialog.getByRole('link', { name: /Release notes/ })).toHaveAttribute(
       'href',
       links.releases,
@@ -54,6 +55,12 @@ test('desktop downloads remain available in Settings on a narrow screen', async 
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Download desktop', exact: true });
   await expect(dialog).toBeVisible();
+  if (links) {
+    await expect(dialog.getByRole('link', { name: /Download for Windows/ })).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    );
+  }
   const bounds = await dialog.boundingBox();
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(360);
