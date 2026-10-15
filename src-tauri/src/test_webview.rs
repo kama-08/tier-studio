@@ -12,6 +12,12 @@ const PORT_VARIABLE: &str = "TIER_STUDIO_TEST_DEBUG_PORT";
 const PROFILE_VARIABLE: &str = "TIER_STUDIO_TEST_PROFILE";
 const DEFAULT_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection";
 
+pub(super) fn trace(stage: &str) {
+    if std::env::var_os(PORT_VARIABLE).is_some() {
+        eprintln!("Native smoke test: {stage}");
+    }
+}
+
 pub(super) struct TestWebview {
     window: WindowConfig,
     profile: PathBuf,
@@ -58,15 +64,21 @@ fn apply(
     // Config data_directory accepts relative paths only. Defer this window to
     // setup, where the builder's data_directory API accepts an absolute path.
     window.create = false;
-    Ok(Some(TestWebview {
+    let settings = TestWebview {
         window: window.clone(),
         profile,
-    }))
+    };
+    // All launches in this smoke run use the same port, including secondary
+    // instances. Keep their mutex separate from the user's normal desktop app.
+    config.identifier = format!("{}.native-smoke-{port}", config.identifier);
+    trace("configured browser arguments, profile, and isolated instance ID");
+    Ok(Some(settings))
 }
 
 pub(super) fn create_window(app: &mut App) -> tauri::Result<()> {
     let settings = app.state::<Option<TestWebview>>();
     if let Some(settings) = settings.inner().as_ref() {
+        trace("creating the native test window");
         WebviewWindowBuilder::from_config(app, &settings.window)?
             .data_directory(settings.profile.clone())
             .build()?;
@@ -81,6 +93,7 @@ mod tests {
 
     fn config() -> Config {
         let mut config = Config::default();
+        config.identifier = "app.tierstudio.desktop".into();
         config.app.windows.push(WindowConfig::default());
         config
     }
@@ -92,6 +105,7 @@ mod tests {
         assert!(config.app.windows[0].additional_browser_args.is_none());
         assert!(config.app.windows[0].data_directory.is_none());
         assert!(config.app.windows[0].create);
+        assert_eq!(config.identifier, "app.tierstudio.desktop");
     }
 
     #[test]
@@ -109,6 +123,10 @@ mod tests {
         assert_eq!(settings.profile, profile);
         assert!(!config.app.windows[0].create);
         assert!(config.app.windows[0].data_directory.is_none());
+        assert_eq!(
+            config.identifier,
+            "app.tierstudio.desktop.native-smoke-12345"
+        );
         assert_eq!(
             config.app.windows[0].additional_browser_args.as_deref(),
             Some("--test-existing-option --remote-debugging-address=127.0.0.1 --remote-debugging-port=12345")
@@ -136,5 +154,6 @@ mod tests {
         .is_err());
         assert!(config.app.windows[0].additional_browser_args.is_none());
         assert!(config.app.windows[0].data_directory.is_none());
+        assert_eq!(config.identifier, "app.tierstudio.desktop");
     }
 }

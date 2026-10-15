@@ -5,6 +5,8 @@ mod test_webview;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg(all(windows, debug_assertions))]
+    test_webview::trace("entered the app runtime");
     let builder = tauri::Builder::default();
     let context = tauri::generate_context!();
     #[cfg(all(windows, debug_assertions))]
@@ -30,6 +32,8 @@ pub fn run() {
         }))
         .setup(|app| {
             #[cfg(all(windows, debug_assertions))]
+            test_webview::trace("entered the setup hook");
+            #[cfg(all(windows, debug_assertions))]
             test_webview::create_window(app)?;
             desktop::setup(app)
         })
@@ -40,6 +44,8 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .build(context)
         .expect("Could not start Tier Studio");
+    #[cfg(all(windows, debug_assertions))]
+    test_webview::trace("built the app; starting its event loop");
 
     app.run(|_app, _event| {
         match _event {

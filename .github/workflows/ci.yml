@@ -76,3 +76,9 @@ jobs:
             }
           }
       - run: bun run test:desktop
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: native-desktop-results
+          path: test-results/
+          retention-days: 7

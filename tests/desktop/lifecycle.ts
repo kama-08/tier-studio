@@ -1,7 +1,7 @@
 import { chromium, expect, type Browser, type Page } from '@playwright/test';
 import type { ConnectOverCDPTransport } from 'playwright-core';
-import { spawn, type ChildProcess } from 'node:child_process';
-import { access, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { execFile, spawn, type ChildProcess } from 'node:child_process';
+import { access, mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -32,16 +32,17 @@ function launch(userData: string) {
   delete env.WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS;
   const child = spawn(executable, [], {
     windowsHide: true,
-    stdio: ['ignore', 'ignore', 'pipe'],
+    stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...env,
       TIER_STUDIO_TEST_PROFILE: userData,
       TIER_STUDIO_TEST_DEBUG_PORT: String(port),
     },
   });
-  child.stderr?.on('data', (data) => {
-    logs = (logs + String(data)).slice(-4000);
-  });
+  for (const stream of [child.stdout, child.stderr])
+    stream?.on('data', (data) => {
+      logs = (logs + `[${child.pid}] ${String(data)}`).slice(-16000);
+    });
   child.on('error', (error) => launchErrors.set(child, error));
   children.push(child);
   return child;
@@ -83,6 +84,33 @@ async function invoke(command: string, args: Record<string, unknown> = {}) {
 }
 const windowState = (name: string) => invoke(`plugin:window|${name}`);
 
+async function startupDiagnostics(child: ChildProcess) {
+  const files = await readdir(profile).catch(() => []);
+  if (!child.pid) return `Profile entries: ${files.join(', ') || '(empty)'}`;
+  // Only report this test child's process tree, not unrelated user processes.
+  const script = `
+    $processes = @(Get-CimInstance Win32_Process)
+    $owned = @(${child.pid})
+    do {
+      $next = @($processes | Where-Object {
+        $owned -contains $_.ParentProcessId -and $owned -notcontains $_.ProcessId
+      } | Select-Object -ExpandProperty ProcessId)
+      $owned += $next
+    } while ($next.Count -gt 0)
+    $processes | Where-Object { $owned -contains $_.ProcessId } |
+      Select-Object ProcessId,ParentProcessId,Name,CommandLine | ConvertTo-Json -Compress
+  `;
+  const processes = await new Promise<string>((done) => {
+    execFile(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      { windowsHide: true, timeout: 5000 },
+      (error, stdout) => done(stdout.trim() || error?.message || '(none)'),
+    );
+  });
+  return `Profile entries: ${files.join(', ') || '(empty)'}. Owned processes: ${processes}`;
+}
+
 async function waitForEndpoint(child: ChildProcess, label: string, previousEndpoint?: string) {
   const deadline = Date.now() + 60000;
   let lastFailure = 'No response received.';
@@ -111,7 +139,7 @@ async function waitForEndpoint(child: ChildProcess, label: string, previousEndpo
     await Bun.sleep(100);
   }
   throw new Error(
-    `${label}: WebView2 did not expose its test endpoint at 127.0.0.1:${port} within 60s. Last response: ${lastFailure}. App stderr: ${logs || '(empty)'}`,
+    `${label}: WebView2 did not expose its test endpoint at 127.0.0.1:${port} within 60s. Last response: ${lastFailure}. App output: ${logs || '(empty)'}. ${await startupDiagnostics(child)}`,
   );
 }
 
@@ -334,6 +362,14 @@ try {
     'Committed from a focused field',
   );
   console.log('PASS: reopening after Quit retains the last title and focused description.');
+} catch (error) {
+  const results = resolve(import.meta.dir, '../../test-results');
+  await mkdir(results, { recursive: true });
+  await writeFile(
+    join(results, 'native-smoke.log'),
+    `${logs}\n${error instanceof Error ? error.stack : String(error)}`,
+  );
+  throw error;
 } finally {
   // Only clean up processes and the unique profile created by this smoke run.
   if (page && !page.isClosed())
