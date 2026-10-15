@@ -90,12 +90,17 @@ bun run deploy:web           # Build and publish
 bun run preview             # Preview the production web build locally
 ```
 
-To deploy automatically, connect `kama-08/tier-studio` to the `tier-studio` Worker
-under Cloudflare → Settings → Builds, with `main` as the production branch. Use
-`bun install --frozen-lockfile && bun run typecheck && bun run lint && bun run test && bun run build`
-as the build command and `bun --bun run wrangler deploy` as the deploy command.
-Pin `BUN_VERSION=1.3.14` in the build environment. GitHub authorization and a
-Cloudflare build token must be configured for this integration.
+GitHub Actions provides automatic deployment through `.github/workflows/deploy-web.yml`.
+After CI succeeds for `main`, it downloads the exact web build tested by that CI
+run, deploys it to Cloudflare, verifies the published HTML, and runs the browser
+suite against the live URL. Superseded builds, pull requests, forks, and version
+tags do not deploy. Production deployments are serialized.
+
+The GitHub `production` environment permits only the `main` branch and holds the
+`CLOUDFLARE_API_TOKEN` secret and `CLOUDFLARE_ACCOUNT_ID` variable. The deployment
+token should have **Individual Workers → Editor**, scoped only to the existing
+`tier-studio` Worker. See [hosting notes](docs/hosting.md) for credential setup,
+rotation, retries, and rollback. Cloudflare Workers Builds is not also connected.
 
 The existing browser suite can target a deployment without starting a local server:
 
@@ -197,7 +202,7 @@ Remove-Item Env:TEST_PRODUCTION
 
 `bun run fmt` formats with Oxfmt; `bun run lint:fix` applies Oxlint fixes. Vitest covers commands, history, project validation, archive round trips, concurrent saves, bounded jobs, and text wrapping. Playwright covers editing, conflict recovery, image cleanup and thumbnails, export preview and downloads, file import, dragging/cancellation, narrow layouts, and production offline behavior. Browser tests use Chromium.
 
-GitHub Actions runs the Bun checks, web production build and browser suite on Linux, plus a native debug build and lifecycle smoke check on Windows. CI runs on branch pushes and pull requests. Version tag pushes run those same checks through the Windows release workflow before building and publishing an installer. Web hosting is not deployed by these workflows.
+GitHub Actions runs the Bun checks, web production build and browser suite on Linux, plus a native debug build and lifecycle smoke check on Windows. CI runs on branch pushes and pull requests. Version tag pushes run those same checks through the Windows release workflow before building and publishing an installer. Successful CI runs on `main` also trigger the separate **Deploy web** workflow for the production website.
 
 See [dependency notes](docs/dependency-notes.md) for the Bun/Playwright compatibility investigation and the test fixture's scoped workaround.
 
