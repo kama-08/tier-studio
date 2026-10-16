@@ -2,6 +2,40 @@
 
 No installed dependency files were modified during these investigations.
 
+## Wrangler publishing under Bun on Linux
+
+The first automatic deployment ran Wrangler 4.151.0 under Bun 1.3.14 on an
+Ubuntu 24.04 GitHub runner. `bun ./node_modules/wrangler/wrangler-dist/cli.js
+deploy --message <commit>` printed its banner, exited with status 0 after about
+four seconds, and did not publish the tested build. The API token and account ID
+were present. The Cloudflare Worker's modification time remained unchanged and
+its live HTML still referenced the earlier JavaScript bundle. The subsequent
+HTML verifier correctly failed the workflow. CI had already passed all checks.
+
+This is an unsupported Wrangler/Bun runtime combination: Wrangler declares
+Node.js >=22 and explicitly warns that Bun is unsupported. The exercised CLI
+entry calls `main(...).catch(...)`; `main` awaits the parser and asynchronous
+command handlers. Inspection does not establish which pending operation or
+runtime behavior caused the silent exit. No dependency source was patched and
+this is not claimed as a newly confirmed upstream defect.
+
+The minimal deployment reproduction is an assets-only `wrangler.jsonc`, a valid
+token with Editor access on the existing target Worker, and the command above
+under the affected Bun version. Expected: publish a new version or return a
+nonzero failure. Actual: banner and exit 0 while the previous version stays live.
+The [existing Pages silent-exit report](https://github.com/cloudflare/workers-sdk/issues/14584)
+has a related symptom on different versions and a different upload path; it does
+not establish the same cause. A useful upstream regression would verify that the
+process reports a confirmed publication or an explicit failure. A minimal fix
+needs further isolation and a supported-runtime comparison. Nothing was posted
+upstream.
+
+`scripts/deploy-web.ts` instead uses Bun's native `fetch` with Cloudflare's
+documented manifest/upload/publish API. It uses the same single-Worker token,
+requires completion grants and a confirmed deployment ID, and keeps the live
+HTML and production browser checks. This resolves the project deployment path
+without changing the user's runtime preference or widening credential access.
+
 ## Wrangler device login under Bun on Windows
 
 With Wrangler 4.151.0 and Bun 1.3.14 on Windows x64, both

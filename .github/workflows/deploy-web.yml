@@ -76,7 +76,7 @@ jobs:
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing production CLOUDFLARE_API_TOKEN secret.'; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'Missing production CLOUDFLARE_ACCOUNT_ID variable.'; exit 1; }
-          bun ./node_modules/wrangler/wrangler-dist/cli.js deploy --message "$DEPLOY_COMMIT"
+          bun scripts/deploy-web.ts
       - name: Verify the deployed HTML matches the tested build
         run: bun scripts/verify-web-deployment.ts
         env:

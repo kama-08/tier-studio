@@ -84,11 +84,16 @@ navigation to routes such as `/projects/:id`. The `_headers` file caches hashed
 assets for a year and revalidates the HTML, manifest, and service-worker entry files.
 
 ```sh
-bun run cloudflare:login     # One-time Wrangler sign-in, separate from the Codex plugin
 bun run deploy:web:check     # Production build and deployment validation
-bun run deploy:web           # Build and publish
+bun run deploy:web           # Build and publish using Cloudflare API credentials
 bun run preview             # Preview the production web build locally
 ```
+
+Publishing requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the
+process environment. The uploader uses Bun's native HTTP client and Cloudflare's
+documented static asset API. It accepts the assets-only `wrangler.jsonc` and
+requires the target Worker to exist. Credentials and upload grants are never
+written into the build or printed.
 
 GitHub Actions provides automatic deployment through `.github/workflows/deploy-web.yml`.
 After CI succeeds for `main`, it downloads the exact web build tested by that CI
@@ -114,11 +119,11 @@ Remove-Item Env:TEST_BASE_URL, Env:TEST_PRODUCTION
 Wrangler 4.151.0's local `dev` server is incompatible with Bun 1.3.14 on Windows;
 see [dependency notes](docs/dependency-notes.md). Use the Vite production preview
 locally and verify Cloudflare's routing and headers on the deployed URL. The
-Wrangler dry-run command works under Bun; authentication and live deployment
-through that command require a separate Wrangler sign-in. The initial deployment
-used the connected Cloudflare plugin's API and Bun for asset uploads. Local
-Wrangler device login did not save credentials; see the dependency notes before
-relying on that flow.
+Wrangler dry-run command works under Bun. Wrangler device login did not save
+credentials, and its Linux CI deploy command exited without publishing. The
+deployment scripts use Bun and the direct API to avoid that unsupported runtime
+combination. See the dependency notes for the observations; local Wrangler
+sign-in is not required by the uploader.
 
 Projects remain in the visitor's browser. Export `.tier` files before moving from
 localhost or changing the production domain; storage does not transfer between origins.

@@ -25,9 +25,10 @@ The initial published application build was commit
 `f7eb3332f0a84bc33529ae3c224eaaa22af08b8d`. Cloudflare returned deployment ID
 `3935e8b69a864434990c3afcca43b992`.
 
-Normal manual deployment commands remain in the README. A successful browser
-authorization alone is insufficient: verify `wrangler whoami` before relying on
-the CLI. See [dependency notes](dependency-notes.md) for the observed limitation.
+Normal manual deployment commands remain in the README. Publishing uses
+`scripts/deploy-web.ts` and requires API credentials in the process environment.
+It does not use local Wrangler OAuth login. See [dependency notes](dependency-notes.md)
+for the observed CLI limitation.
 
 ## Verification
 
@@ -56,7 +57,13 @@ forks, failed/cancelled CI runs, and release tags do not deploy.
 
 The workflow checks whether the tested commit is still the tip of `main`, then
 downloads `web-production-<commit>` from that specific CI run. It deploys these
-tested files without rebuilding, using Bun 1.3.14 and the locked Wrangler version.
+tested files without rebuilding, using Bun 1.3.14 and Cloudflare's documented
+[direct asset-upload API](https://developers.cloudflare.com/workers/static-assets/direct-upload/).
+The uploader reads `wrangler.jsonc`, requires an existing Worker, validates each
+API response, and requires an assets-only deployment ID before reporting success.
+It preserves the headers, redirects, SPA routing, compatibility settings, and
+production/preview URL settings. Configurations with application Worker code or
+other unsupported options fail validation instead of being silently ignored.
 Production deployments are serialized separately from CI cancellation so an older
 deployment cannot finish after a newer deployment. A newer push may temporarily
 leave the previously validated build live until the new CI run succeeds.

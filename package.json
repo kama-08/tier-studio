@@ -29,7 +29,7 @@
     "release:validate": "bun scripts/release.ts validate",
     "release:prepare": "bun scripts/release.ts prepare",
     "cloudflare:login": "bun --bun run wrangler login --browser=false",
-    "deploy:web": "bun run build && bun --bun run wrangler deploy",
+    "deploy:web": "bun run build && bun scripts/deploy-web.ts",
     "deploy:web:check": "bun run build && bun --bun run wrangler deploy --dry-run"
   },
   "dependencies": {
@@ -60,6 +60,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "fake-indexeddb": "^6.2.5",
+    "jsonc-parser": "^3.3.1",
     "oxfmt": "^0.72.0",
     "oxlint": "^1.87.0",
     "tailwindcss": "^4.3.3",
