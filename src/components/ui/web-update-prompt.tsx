@@ -2,12 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { isDesktop } from '@/app/services';
 import { watchWebUpdates } from '@/app/web-updates';
+import { flushEditor } from '@/features/editor/editor-store';
 import { Button } from './button';
-
-async function saveProject() {
-  const { flushEditor } = await import('@/features/editor/editor-store');
-  await flushEditor();
-}
 
 export function WebUpdatePrompt() {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
@@ -21,7 +17,7 @@ export function WebUpdatePrompt() {
   }, []);
   const finishUpdate = useCallback(async () => {
     // Include any edits made while the new worker was activating.
-    await saveProject();
+    await flushEditor();
     window.location.reload();
   }, []);
   useEffect(() => {
@@ -36,7 +32,7 @@ export function WebUpdatePrompt() {
     setUpdating(true);
     setError(null);
     try {
-      await saveProject();
+      await flushEditor();
       requested.current = true;
       if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       else await finishUpdate(); // Another tab may already have activated this version.
