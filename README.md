@@ -1,10 +1,19 @@
 # Tier Studio
 
-An offline tier list editor for the web and desktop. Built with React, TypeScript, Vite, TanStack Router, and Tauri 2. Bun manages dependencies and runs the JavaScript tooling.
+[![CI](https://github.com/kama-08/tier-studio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kama-08/tier-studio/actions/workflows/ci.yml)
+[![Deploy web](https://github.com/kama-08/tier-studio/actions/workflows/deploy-web.yml/badge.svg?branch=main)](https://github.com/kama-08/tier-studio/actions/workflows/deploy-web.yml)
 
-[Open the web app](https://tier-studio.kama-08.workers.dev) · [Download for Windows (x64)](https://github.com/kama-08/tier-studio/releases/latest/download/Tier-Studio-windows-x64-setup.exe) · [Release notes](https://github.com/kama-08/tier-studio/releases/latest)
+Create, customize, and export tier lists in your browser or on Windows. Projects save locally, and the web app works offline after the first visit.
 
-## Run
+**[Open Tier Studio](https://tier-studio.kama-08.workers.dev)** · [Download for Windows (x64)](https://github.com/kama-08/tier-studio/releases/latest/download/Tier-Studio-windows-x64-setup.exe) · [Release notes](https://github.com/kama-08/tier-studio/releases/latest)
+
+The web app needs no installation or account. Visit once while online to cache the app, then use it offline. Export `.tier` files to back up projects or move them between browsers and desktop. Projects stay on your device; they are not uploaded to a server.
+
+The production website runs on Cloudflare Workers Static Assets. Successful CI runs on `main` deploy it automatically through GitHub Actions. Windows installers are published separately through GitHub Releases.
+
+## Development
+
+Built with React, TypeScript, Vite, TanStack Router, and Tauri 2. Bun manages dependencies and runs the JavaScript tooling.
 
 ```sh
 git clone https://github.com/kama-08/tier-studio.git
@@ -72,11 +81,11 @@ An explicitly empty value disables download links. Restart dev or rebuild after 
 this value; Vite embeds it in the frontend bundle. A fork must publish the same stable
 installer filename, `Tier-Studio-windows-x64-setup.exe`, for its download link to work.
 
-## Deploy the web app
+## Web hosting and deployment
 
-The official web app is live at **https://tier-studio.kama-08.workers.dev**.
-See [hosting notes](docs/hosting.md) for the deployment method, verification, and
-automatic-deployment status.
+The [production web app](https://tier-studio.kama-08.workers.dev) is deployed and
+automatic deployment is active. See the [Deploy web workflow](https://github.com/kama-08/tier-studio/actions/workflows/deploy-web.yml)
+for current status and [hosting notes](docs/hosting.md) for configuration and verification.
 
 `wrangler.jsonc` deploys `dist/web/` to Cloudflare Workers Static Assets. No Worker
 script, database, or paid compute is needed. SPA routing serves `index.html` for
@@ -155,8 +164,8 @@ bun run release:prepare v0.1.0
 ```
 
 The stable installer and checksum are written to ignored `release-artifacts/`.
-Signing certificates and automatic desktop updates are not configured. GitHub Pages
-can host the web frontend; installers are distributed through GitHub Releases.
+Signing certificates and automatic desktop updates are not configured. Installers
+are distributed through GitHub Releases; web updates are deployed separately to Cloudflare.
 
 ## Structure
 
@@ -205,7 +214,7 @@ bun run test:e2e --grep 'production app is offline'
 Remove-Item Env:TEST_PRODUCTION
 ```
 
-`bun run fmt` formats with Oxfmt; `bun run lint:fix` applies Oxlint fixes. Vitest covers commands, history, project validation, archive round trips, concurrent saves, bounded jobs, and text wrapping. Playwright covers editing, conflict recovery, image cleanup and thumbnails, export preview and downloads, file import, dragging/cancellation, narrow layouts, and production offline behavior. Browser tests use Chromium.
+`bun run fmt` formats with Oxfmt; `bun run lint:fix` applies Oxlint fixes. Vitest covers commands, history, project validation, archive round trips, concurrent saves, bounded jobs, and text wrapping. Playwright covers editing, conflict recovery, image cleanup and thumbnails, export preview and downloads, file import, dragging/cancellation, narrow layouts, production offline behavior, and applying app updates while preserving projects. Browser tests use Chromium.
 
 GitHub Actions runs the Bun checks, web production build and browser suite on Linux, plus a native debug build and lifecycle smoke check on Windows. CI runs on branch pushes and pull requests. Version tag pushes run those same checks through the Windows release workflow before building and publishing an installer. Successful CI runs on `main` also trigger the separate **Deploy web** workflow for the production website.
 
