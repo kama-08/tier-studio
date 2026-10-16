@@ -1533,6 +1533,33 @@ input:focus-visible {
 .notice > svg {
   flex-shrink: 0;
 }
+.web-update {
+  position: fixed;
+  top: 96px;
+  right: 24px;
+  width: min(360px, calc(100vw - 48px));
+  padding: 16px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: 0 8px 32px #0003;
+  font-size: 13px;
+  z-index: 55;
+}
+.web-update-heading,
+.web-update-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.web-update p {
+  margin: 10px 0;
+  color: var(--color-secondary);
+}
+.web-update [role='alert'] {
+  color: var(--color-danger);
+}
 .busy-pill {
   position: fixed;
   bottom: 78px;

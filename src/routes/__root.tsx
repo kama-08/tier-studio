@@ -8,6 +8,7 @@ import { isDesktop } from '@/app/services';
 import { publicRepository } from '@/app/distribution';
 import { DesktopDownloadButton } from '@/components/ui/desktop-download';
 import { GitHubIcon } from '@/components/ui/github-icon';
+import { WebUpdatePrompt } from '@/components/ui/web-update-prompt';
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -87,6 +88,7 @@ function RootLayout() {
         <Outlet />
       </main>
       <Notice />
+      <WebUpdatePrompt />
     </div>
   );
 }

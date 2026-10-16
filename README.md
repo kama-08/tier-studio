@@ -29,7 +29,7 @@ bun run preview              # Preview the web build
 bun run desktop:build        # Native desktop app and installers
 ```
 
-The first web visit requires a connection. Production builds cache the app for subsequent offline visits. The service worker is disabled in development and desktop builds. A static host must serve `index.html` for unknown routes. Desktop uses hash routing to avoid native asset path issues.
+The first web visit requires a connection. Production builds cache the app for subsequent offline visits. When a new version is ready, choose **Update now** to save the current project and reload, or **Later** to keep editing. Updates are checked when returning to the app and hourly while it is open. The service worker is disabled in development and desktop builds. A static host must serve `index.html` for unknown routes. Desktop uses hash routing to avoid native asset path issues.
 
 ## Included
 
