@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { ITEM_SHAPES, type ItemShape } from '@/core/schema';
+import { buttonStyles } from '@/components/ui/button';
 
 const SHAPES: Record<ItemShape, { label: string; hint: string; icon: LucideIcon }> = {
   square: { label: 'Square', hint: '1:1', icon: Square },
@@ -120,10 +121,9 @@ export function ItemShapePicker({
 
   return (
     <div className="item-shape-control" role="group" aria-label="Item shape picker" ref={root}>
-      <span>Shape</span>
       <button
         type="button"
-        className="item-shape-trigger"
+        className={buttonStyles({ variant: 'ghost', className: 'item-shape-trigger' })}
         ref={trigger}
         aria-label={`Item shape: ${current.label}`}
         aria-haspopup="listbox"
@@ -145,7 +145,7 @@ export function ItemShapePicker({
         }}
       >
         <CurrentIcon size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span>{current.label}</span>
+        <span>Shape: {current.label}</span>
         <ChevronDown size={13} aria-hidden="true" />
       </button>
       {expanded ? (

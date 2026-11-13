@@ -303,7 +303,11 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
         <fieldset className="editor-toolbar" disabled={conflict}>
           <legend className="sr-only">Board tools</legend>
           <div className="toolbar-main">
-            <Button onClick={() => fileInput.current?.click()} disabled={Boolean(busy)}>
+            <Button
+              variant="ghost"
+              onClick={() => fileInput.current?.click()}
+              disabled={Boolean(busy)}
+            >
               <ImagePlus aria-hidden="true" size={16} /> Add images
             </Button>
             <Button
@@ -360,8 +364,8 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
             >
               <RefreshCcw aria-hidden="true" size={15} />
             </Button>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               className="add-tier-button"
               disabled={project.tiers.length >= 30}
               onClick={() =>
@@ -373,8 +377,8 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
                 })
               }
             >
-              <Plus size={15} aria-hidden="true" /> Add a tier
-            </button>
+              <Plus size={16} aria-hidden="true" /> Add a tier
+            </Button>
           </div>
         </fieldset>
         <input
