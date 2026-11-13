@@ -1,17 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import {
-  ArrowDownToLine,
-  ArrowUpRight,
-  Copy,
-  FolderOpen,
-  Plus,
-  Search,
-  Sparkles,
-  Trash2,
-} from 'lucide-react';
+import { ArrowUpRight, Copy, FolderOpen, Plus, Search, LayoutGrid, X, Trash2 } from 'lucide-react';
 import { projects, getFiles } from '@/app/services';
 import { createProject, createSampleProject, countRanked } from '@/core/project';
+import { readableInk } from '@/core/color';
 import type { Project } from '@/core/schema';
 import { useAssetUrls } from '@/features/assets/use-asset-urls';
 import { Button } from '@/components/ui/button';
@@ -38,14 +30,21 @@ function MiniBoard({ project, hero = false }: { project: Project; hero?: boolean
     >
       {project.tiers.slice(0, 5).map((tier) => (
         <div className="mini-row" key={tier.id}>
-          <div className="mini-label" style={{ background: tier.color }}>
+          <div
+            className="mini-label"
+            style={{ background: tier.color, color: readableInk(tier.color) }}
+          >
             {tier.label}
           </div>
           <div className="mini-items">
             {tier.itemIds.slice(0, 6).map((id) => {
               const item = project.items[id];
               return (
-                <div className="mini-item" key={id} style={{ background: item.color }}>
+                <div
+                  className="mini-item"
+                  key={id}
+                  style={{ background: item.color, color: readableInk(item.color) }}
+                >
                   {item.assetId && urls[item.assetId] ? (
                     <img src={urls[item.assetId]} alt="" />
                   ) : (
@@ -80,7 +79,7 @@ function ProjectCard({
       >
         <MiniBoard project={project} />
         <span className="preview-open">
-          <ArrowUpRight size={20} />
+          <ArrowUpRight size={18} aria-hidden="true" />
         </span>
       </Link>
       <div className="project-card-body">
@@ -99,7 +98,7 @@ function ProjectCard({
               aria-label={`Duplicate ${project.title}`}
               onClick={onDuplicate}
             >
-              <Copy size={14} />
+              <Copy size={16} aria-hidden="true" />
             </Button>
             <Button
               variant="ghost"
@@ -107,7 +106,7 @@ function ProjectCard({
               aria-label={`Delete ${project.title}`}
               onClick={onDelete}
             >
-              <Trash2 size={14} />
+              <Trash2 size={16} aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -129,6 +128,7 @@ export function ProjectLibrary() {
   const [loading, setLoading] = useState(true);
   const [sample] = useState(createSampleProject);
   const [search, setSearch] = useState('');
+  const searchInput = useRef<HTMLInputElement>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
@@ -237,102 +237,126 @@ export function ProjectLibrary() {
     }
   }
 
-  const filtered = library.filter((project) =>
-    project.title.toLowerCase().includes(search.toLowerCase()),
+  const query = search.trim().toLocaleLowerCase();
+  const filtered = library.filter((project) => project.title.toLocaleLowerCase().includes(query));
+  const samplePanel = (
+    <section
+      className="sample-panel"
+      aria-labelledby="sample-heading"
+      data-compact={library.length > 0}
+    >
+      <div className="sample-copy">
+        {library.length === 0 ? (
+          <span className="sample-label">
+            <LayoutGrid size={14} aria-hidden="true" /> Sample board
+          </span>
+        ) : null}
+        <h2 id="sample-heading">{library.length ? 'Try a sample board' : 'Start a tier list'}</h2>
+        <p>Explore a ready-made ranking, or create a blank project and make it yours.</p>
+        <Button onClick={() => void openNew(createSampleProject())} disabled={busy}>
+          Try the sample <ArrowUpRight size={16} aria-hidden="true" />
+        </Button>
+      </div>
+      {library.length === 0 ? (
+        <div className="sample-art" aria-hidden="true">
+          <div className="sample-board">
+            <div className="sample-board-title">
+              <span className="sample-board-mark">
+                <LayoutGrid size={15} />
+              </span>{' '}
+              The little things
+            </div>
+            <MiniBoard project={sample} hero />
+          </div>
+        </div>
+      ) : null}
+    </section>
   );
   return (
     <>
       <header className="page-topbar">
         <div className="topbar-leading">
           <SidebarToggle />
+          <span>Workspace</span>
         </div>
         <div className="topbar-actions">
           <ThemeToggle />
-          <span className="avatar" aria-hidden="true">
-            you
-          </span>
         </div>
       </header>
       <div className="library-page">
-        <section className="library-hero">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              <span /> PLAY FAVORITES
-            </div>
-            <h1>
-              Good taste.
-              <br />
-              <em>Your rules.</em>
-            </h1>
-            <p>
-              From the best films to the smallest joys.
-              <br /> Give your favorites a place to belong.
-            </p>
-            <div className="hero-actions">
-              <Button variant="primary" onClick={() => setCreateOpen(true)}>
-                <Plus size={17} /> New project
-              </Button>
-              <Button variant="ghost" onClick={() => void importFile()} disabled={busy}>
-                <FolderOpen size={17} /> Import project
-              </Button>
-            </div>
+        <div className="workspace-heading">
+          <div>
+            <h1>My projects</h1>
+            <p>Pick up a ranking or start something new.</p>
           </div>
-          <div className="hero-art">
-            <div className="hero-card">
-              <div className="hero-card-title">
-                The little things <span>MY VERY OFFICIAL RANKING</span>
-              </div>
-              <MiniBoard project={sample} hero />
-              <div className="hero-card-footer">
-                <span>A few things worth ranking.</span>
-                <button onClick={() => void openNew(sample)} disabled={busy}>
-                  Try the sample <ArrowUpRight size={14} />
-                </button>
-              </div>
-            </div>
-            <div className="hero-sticker">
-              <Sparkles size={15} /> entirely subjective
-            </div>
+          <div className="workspace-actions">
+            <Button onClick={() => void importFile()} disabled={busy}>
+              <FolderOpen size={17} aria-hidden="true" /> Import project
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setName('');
+                setCreateOpen(true);
+              }}
+              disabled={busy}
+            >
+              <Plus size={17} aria-hidden="true" /> New project
+            </Button>
           </div>
-        </section>
+        </div>
         <section aria-labelledby="projects-heading">
           <div className="library-toolbar">
             <div className="flex items-center gap-3">
-              <h2 id="projects-heading">My projects</h2>
-              <span className="count-badge">{library.length}</span>
+              <h2 id="projects-heading">Library</h2>
+              <output className="count-badge">
+                {filtered.length}
+                <span className="sr-only">
+                  {' '}
+                  {filtered.length === 1 ? 'project' : 'projects'}
+                  {query ? ' found' : ''}
+                </span>
+              </output>
             </div>
-            <label className="search-field">
-              <Search size={16} />
-              <span className="sr-only">Search projects</span>
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Find a project…"
-              />
-            </label>
+            {library.length > 0 ? (
+              <div className="search-field">
+                <Search size={16} aria-hidden="true" />
+                <label className="sr-only" htmlFor="project-search">
+                  Search projects
+                </label>
+                <input
+                  ref={searchInput}
+                  id="project-search"
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search projects…"
+                />
+                {search ? (
+                  <button
+                    type="button"
+                    className="clear-search"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSearch('');
+                      searchInput.current?.focus();
+                    }}
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
           {loading ? (
-            <output className="empty-library">Opening your space…</output>
+            <output className="empty-library">Loading projects…</output>
           ) : library.length === 0 ? (
-            <div className="empty-library">
-              <div className="empty-icon">
-                <ArrowDownToLine size={23} strokeWidth={1.5} />
-              </div>
-              <h3>Your next great ranking starts here.</h3>
-              <p>
-                Create a project or try the sample above.
-                <br />
-                Everything saves right here, as you go.
-              </p>
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus size={16} /> Create your first project
-              </Button>
-            </div>
+            samplePanel
           ) : filtered.length === 0 ? (
             <div className="empty-library">
-              <h3>No projects found.</h3>
-              <p>Try a different name.</p>
-              <Button onClick={() => setSearch('')}>Clear search</Button>
+              <Search size={26} aria-hidden="true" />
+              <h3>No projects found</h3>
+              <p>Try a different name or clear your search.</p>
             </div>
           ) : (
             <div className="project-grid">
@@ -344,25 +368,12 @@ export function ProjectLibrary() {
                   onDelete={() => setDeleting(project)}
                 />
               ))}
-              <button className="new-project-card" onClick={() => setCreateOpen(true)}>
-                <span>
-                  <Plus size={24} />
-                </span>{' '}
-                Something new?
-              </button>
             </div>
           )}
         </section>
-        <footer className="library-footer">
-          <span>Made for opinions, big and small.</span>
-          <span>Saved locally. Always yours.</span>
-        </footer>
+        {!loading && library.length > 0 && !query ? samplePanel : null}
       </div>
-      <Dialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        title="Make room for your favorites."
-      >
+      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} title="New project">
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -377,7 +388,7 @@ export function ProjectLibrary() {
             className="text-input"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="The best of absolutely anything"
+            placeholder="e.g. Favorite albums"
             maxLength={160}
           />
           <p className="dialog-help">Start with five tiers. Change everything as you go.</p>

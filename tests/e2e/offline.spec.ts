@@ -6,7 +6,7 @@ test('reopens and edits a saved project while the production app is offline', as
 }) => {
   test.skip(!process.env.TEST_PRODUCTION, 'The service worker is only enabled in production.');
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Good taste. Your rules.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'My projects' })).toBeVisible();
   await page.screenshot({ path: 'test-results/preview-library.png', fullPage: true });
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;

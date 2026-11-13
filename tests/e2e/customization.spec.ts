@@ -49,6 +49,8 @@ test('customizations preview live, group a slider gesture into one undo, persist
     .click();
   await expect(firstTile(page)).toHaveCSS('width', '64px');
   await page.getByRole('button', { name: 'Use Vibrant colors', exact: true }).click();
+  const row = page.locator('.tier-row').first();
+  const untintedColor = await row.evaluate((el) => getComputedStyle(el).backgroundColor);
   await page.getByLabel('Tint rows with tier colors', { exact: true }).check();
   await page.getByLabel('Row borders', { exact: true }).selectOption('dashed');
   await endRange(page, 'Label width', 'End');
@@ -71,7 +73,7 @@ test('customizations preview live, group a slider gesture into one undo, persist
     .locator('.tier-row')
     .first()
     .evaluate((el) => getComputedStyle(el).backgroundColor);
-  expect(tintedColor).not.toBe('rgb(39, 39, 42)');
+  expect(tintedColor).not.toBe(untintedColor);
   await page.getByLabel('Style name', { exact: true }).fill('My compact style');
   await page.getByRole('button', { name: 'Save style', exact: true }).click();
   await expect(page.getByText('Style saved on this device.', { exact: true })).toBeVisible();
@@ -193,6 +195,7 @@ test('PNG exports apply image fit, rounded corners, row tints, transparency, and
       size: rect.width,
       itemColor: getComputedStyle(tile).backgroundColor,
       rowColor: getComputedStyle(row).backgroundColor,
+      appBackground: getComputedStyle(document.documentElement).backgroundColor,
       rowY: row.getBoundingClientRect().top - board.top,
       rowH: row.getBoundingClientRect().height,
     };
@@ -227,7 +230,11 @@ test('PNG exports apply image fit, rounded corners, row tints, transparency, and
         ctx.fillStyle = rects.rowColor;
         ctx.fillRect(0, 0, 1, 1);
         const rowColor = Array.from(ctx.getImageData(0, 0, 1, 1).data);
+        ctx.fillStyle = rects.appBackground;
+        ctx.fillRect(0, 0, 1, 1);
+        const appBackground = Array.from(ctx.getImageData(0, 0, 1, 1).data);
         return {
+          appBackground,
           width: canvas.width,
           height: canvas.height,
           top,
@@ -264,5 +271,5 @@ test('PNG exports apply image fit, rounded corners, row tints, transparency, and
   await closePanel(page);
   const headers = await exportPixels('all-sections');
   expect(headers.height - crop.height).toBe(312);
-  expect(headers.background).toEqual([24, 24, 27, 255]);
+  expect(headers.background).toEqual(headers.appBackground);
 });

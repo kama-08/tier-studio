@@ -11,6 +11,7 @@ import { DragDropProvider, useDragOperation, useDroppable } from '@dnd-kit/react
 import { useSortable } from '@dnd-kit/react/sortable';
 import { move } from '@dnd-kit/helpers';
 import { ChevronDown, ChevronUp, MoreHorizontal, Settings2 } from 'lucide-react';
+import { readableInk } from '@/core/color';
 import { getPlacements } from '@/core/project';
 import { getItemAspectRatio, getTierLayout, TILE_SIZE } from '@/core/layout';
 import { getAppearance, DEFAULT_APPEARANCE } from '@/core/appearance';
@@ -60,6 +61,7 @@ const SortableItem = memo(function SortableItem({
       className={`item-tile ${isDragSource ? 'item-dragging' : ''}`}
       style={{
         backgroundColor: item.color,
+        color: readableInk(item.color),
         width: shape === 'original' && url ? undefined : width,
         height: shape === 'original' && url ? undefined : height,
         gridRow: row === undefined ? undefined : row + 1,
@@ -84,7 +86,7 @@ const SortableItem = memo(function SortableItem({
         aria-label={`Options for ${item.name}`}
         onClick={() => onOptions(item)}
       >
-        <MoreHorizontal size={16} />
+        <MoreHorizontal size={16} aria-hidden="true" />
       </button>
     </div>
   );
@@ -270,13 +272,13 @@ export function TierBoard({
           >
             <button
               className="tier-label"
-              style={{ background: tier.color }}
+              style={{ background: tier.color, color: readableInk(tier.color) }}
               onClick={() => onTierEdit(tier.id)}
               aria-label={`Edit tier ${tier.label}`}
               title="Edit label and color"
             >
               <span>{tier.label}</span>
-              <Settings2 size={13} />
+              <Settings2 size={13} aria-hidden="true" />
             </button>
             <DropArea
               id={tier.id}
@@ -313,7 +315,10 @@ export function TierBoard({
         <div className="unranked-header">
           <div className="flex items-center gap-3">
             <h2 id="unranked-heading">Unranked</h2>
-            <span className="count-badge">{placements[POOL_ID].length}</span>
+            <span className="count-badge">
+              {placements[POOL_ID].length}
+              <span className="sr-only"> unranked</span>
+            </span>
           </div>
         </div>
         <DropArea

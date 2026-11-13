@@ -44,39 +44,29 @@ export function SettingsPage() {
       <header className="page-topbar">
         <div className="topbar-leading">
           <SidebarToggle />
-          <span>Your space, your settings.</span>
+          <span>Workspace / Settings</span>
         </div>
         <div className="topbar-actions">
           <ThemeToggle />
-          <span className="avatar" aria-hidden="true">
-            you
-          </span>
         </div>
       </header>
       <div className="settings-page">
-        <div className="eyebrow">A SPACE OF YOUR OWN</div>
-        <h1 className="font-display text-4xl">Keep the things you love.</h1>
-        <p className="mt-3 text-secondary">Make yourself at home, and keep your projects close.</p>
-        {!isDesktop ? (
-          <section className="settings-card">
-            <Monitor size={22} aria-hidden="true" />
-            <div>
-              <h2>Desktop app</h2>
-              <p>Download Tier Studio for Windows. Move your projects with a .tier file.</p>
-              <DesktopDownloadButton />
-            </div>
-          </section>
-        ) : null}
+        <div className="workspace-heading">
+          <div>
+            <h1>Settings</h1>
+            <p>Manage your appearance, storage, and desktop app.</p>
+          </div>
+        </div>
         <section className="settings-card">
-          <Palette size={22} />
+          <Palette size={22} aria-hidden="true" />
           <div className="appearance-settings">
             <h2>Appearance</h2>
-            <p>Choose your favorite light. System follows your device’s appearance.</p>
+            <p>Choose a theme, or follow your device’s appearance.</p>
             <ThemeOptions />
           </div>
         </section>
         <section className="settings-card">
-          <HardDrive size={22} />
+          <HardDrive size={22} aria-hidden="true" />
           <div>
             <h2>Saved on this device</h2>
             <p>
@@ -90,7 +80,7 @@ export function SettingsPage() {
         </section>
         {!isDesktop && typeof navigator.storage?.persist === 'function' ? (
           <section className="settings-card">
-            <ShieldCheck size={22} />
+            <ShieldCheck size={22} aria-hidden="true" />
             <div>
               <h2>Keep local storage</h2>
               <p>
@@ -114,16 +104,26 @@ export function SettingsPage() {
           </section>
         ) : null}
         <section className="settings-card">
-          <FolderOpen size={22} />
+          <FolderOpen size={22} aria-hidden="true" />
           <div>
-            <h2>One file. Your whole ranking.</h2>
+            <h2>Project files and backups</h2>
             <p>
               “Save project” in the editor creates a .tier file with your tiers and images. Import
               it on another device to keep editing. “Export PNG” makes an image of the ranked board.
             </p>
           </div>
         </section>
-        <p className="settings-version">Tier Studio 0.1 · Made for opinions, big and small.</p>
+        {!isDesktop ? (
+          <section className="settings-card">
+            <Monitor size={22} aria-hidden="true" />
+            <div>
+              <h2>Desktop app</h2>
+              <p>Download Tier Studio for Windows. Move your projects with a .tier file.</p>
+              <DesktopDownloadButton />
+            </div>
+          </section>
+        ) : null}
+        <p className="settings-version">Tier Studio · v0.1</p>
       </div>
     </>
   );

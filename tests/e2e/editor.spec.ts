@@ -120,17 +120,39 @@ test('drags an item into an empty tier and cancels a later drag without changing
 });
 
 test('renders the library on a narrow screen without horizontal overflow', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Good taste. Your rules.' })).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
-    true,
-  );
+  await expect(page.getByRole('heading', { name: 'My projects' })).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('main')).toBeFocused();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
   await page.screenshot({ path: 'test-results/preview-library-mobile.png', fullPage: true });
   await page.getByRole('button', { name: 'Try the sample', exact: true }).click();
   await expect(page.getByLabel('Project title', { exact: true })).toHaveValue('The little things');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
-    true,
-  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
   await page.screenshot({ path: 'test-results/preview-editor-mobile.png', fullPage: true });
+  await page.setViewportSize({ width: 812, height: 375 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  const search = page.getByRole('searchbox', { name: 'Search projects' });
+  await search.fill('no matching ranking');
+  await expect(page.getByRole('heading', { name: 'No projects found' })).toBeVisible();
+  await page.getByRole('button', { name: 'Clear search' }).click();
+  await expect(search).toBeFocused();
+  await expect(page.getByRole('link', { name: 'Open The little things' })).toBeVisible();
 });

@@ -14,7 +14,11 @@ export function ThemeToggle() {
       title={`Switch to ${next} theme`}
       onClick={() => setPreference(next)}
     >
-      {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+      {theme === 'dark' ? (
+        <Sun size={17} aria-hidden="true" />
+      ) : (
+        <Moon size={17} aria-hidden="true" />
+      )}
     </Button>
   );
 }
@@ -41,7 +45,12 @@ export function ThemeOptions() {
               checked={preference === value}
               onChange={() => setPreference(value)}
             />
-            <Icon size={18} aria-hidden="true" />
+            <span className="theme-preview" data-preview={value} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <Icon size={16} aria-hidden="true" />
             <span>{label}</span>
           </label>
         ))}

@@ -51,6 +51,8 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
   const document = history?.document.id === initialProject.id ? history.document : initialProject;
   const [appearancePreview, setAppearancePreview] = useState<Appearance | null>(null);
   const project = appearancePreview ? { ...document, appearance: appearancePreview } : document;
+  const rankedCount = countRanked(project);
+  const itemCount = Object.keys(project.items).length;
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [assetRevision, setAssetRevision] = useState(0);
@@ -210,29 +212,29 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
         <div className="topbar-leading">
           <SidebarToggle />
           <Link to="/" className="back-link">
-            <ArrowLeft size={16} /> My projects
+            <ArrowLeft size={16} aria-hidden="true" /> My projects
           </Link>
         </div>
         <div className="topbar-actions">
           <ThemeToggle />
-          <output className={`save-indicator ${saveStatus === 'error' ? 'save-error' : ''}`}>
+          <output className="save-indicator" data-save={saveStatus}>
             {saveStatus === 'saving' ? (
-              <LoaderCircle size={14} className="animate-spin" />
+              <LoaderCircle aria-hidden="true" size={14} className="animate-spin" />
             ) : saveStatus === 'saved' ? (
-              <Check size={14} />
+              <Check aria-hidden="true" size={14} />
             ) : null}
             {saveStatus === 'saved'
               ? 'All changes saved'
               : saveStatus === 'saving'
                 ? 'Saving…'
                 : 'Could not save'}
-            <span className="status-dot" />
           </output>
         </div>
       </header>
       <div className="editor-page">
         <div className="editor-heading">
           <div className="editor-title-block">
+            <h1 className="workspace-kicker">Ranking editor</h1>
             <input
               className="project-title-input"
               aria-label="Project title"
@@ -261,14 +263,14 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
           </div>
           <div className="editor-export-actions">
             <Button disabled={Boolean(busy)} onClick={() => void exportFile('project')}>
-              <Save size={16} /> Save project
+              <Save aria-hidden="true" size={16} /> Save project
             </Button>
             <Button
               variant="primary"
               disabled={Boolean(busy)}
               onClick={() => void exportFile('image')}
             >
-              <ArrowDownToLine size={16} /> Export PNG
+              <ArrowDownToLine aria-hidden="true" size={16} /> Export PNG
             </Button>
             <Button
               size="icon"
@@ -277,7 +279,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               disabled={Boolean(busy) || conflict}
               onClick={() => setExportOpen(true)}
             >
-              <ScanEye size={17} />
+              <ScanEye aria-hidden="true" size={17} />
             </Button>
           </div>
         </div>
@@ -299,64 +301,69 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
           </div>
         ) : null}
         <fieldset className="editor-toolbar" disabled={conflict}>
+          <legend className="sr-only">Board tools</legend>
           <div className="toolbar-main">
-            <Button onClick={() => fileInput.current?.click()} disabled={Boolean(busy)}>
-              <ImagePlus size={16} /> Add images
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setTextName('');
-                setTextOpen(true);
-              }}
-              disabled={Object.keys(project.items).length >= 2000}
-            >
-              <Type size={16} /> Text item
-            </Button>
-            <ItemShapePicker
-              value={project.itemShape ?? 'square'}
-              disabled={Boolean(busy)}
-              onChange={(shape) => execute({ type: 'set-item-shape', shape })}
-            />
-            <span className="toolbar-divider" />
-            <Button variant="ghost" disabled={Boolean(busy)} onClick={() => setCustomizeOpen(true)}>
-              <SlidersHorizontal size={16} /> Customize
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Undo"
-              title="Undo (Ctrl/⌘ Z)"
-              disabled={!history?.past.length}
-              onClick={undo}
-            >
-              <Undo2 size={17} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Redo"
-              title="Redo (Ctrl/⌘ Shift Z)"
-              disabled={!history?.future.length}
-              onClick={redo}
-            >
-              <Redo2 size={17} />
-            </Button>
-          </div>
-          <div className="toolbar-summary">
-            <span>
-              {countRanked(project)} / {Object.keys(project.items).length} ranked
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Reset ranking"
-              title="Move all items to Unranked"
-              disabled={!countRanked(project)}
-              onClick={() => setResetOpen(true)}
-            >
-              <RefreshCcw size={15} />
-            </Button>
+            <div className="toolbar-group">
+              <Button onClick={() => fileInput.current?.click()} disabled={Boolean(busy)}>
+                <ImagePlus aria-hidden="true" size={16} /> Add images
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setTextName('');
+                  setTextOpen(true);
+                }}
+                disabled={Object.keys(project.items).length >= 2000}
+              >
+                <Type aria-hidden="true" size={16} /> Text item
+              </Button>
+            </div>
+            <div className="toolbar-group">
+              <ItemShapePicker
+                value={project.itemShape ?? 'square'}
+                disabled={Boolean(busy)}
+                onChange={(shape) => execute({ type: 'set-item-shape', shape })}
+              />
+              <Button
+                variant="ghost"
+                disabled={Boolean(busy)}
+                onClick={() => setCustomizeOpen(true)}
+              >
+                <SlidersHorizontal aria-hidden="true" size={16} /> Customize
+              </Button>
+            </div>
+            <div className="toolbar-group">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Undo"
+                title="Undo (Ctrl/⌘ Z)"
+                disabled={!history?.past.length}
+                onClick={undo}
+              >
+                <Undo2 aria-hidden="true" size={17} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Redo"
+                title="Redo (Ctrl/⌘ Shift Z)"
+                disabled={!history?.future.length}
+                onClick={redo}
+              >
+                <Redo2 aria-hidden="true" size={17} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Reset ranking"
+                title="Move all items to Unranked"
+                disabled={!rankedCount}
+                onClick={() => setResetOpen(true)}
+              >
+                <RefreshCcw aria-hidden="true" size={15} />
+              </Button>
+            </div>
           </div>
         </fieldset>
         <input
@@ -369,6 +376,31 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
           onChange={(event) => void addImages(Array.from(event.target.files ?? []))}
         />
         <div inert={conflict} className="editor-board-content">
+          <div className="board-heading">
+            <h2>Tier board</h2>
+            <div className="board-heading-actions">
+              <div className="board-progress">
+                <progress aria-label="Ranking progress" value={rankedCount} max={itemCount || 1} />
+                <output>
+                  {rankedCount} of {itemCount} ranked
+                </output>
+              </div>
+              <button
+                className="add-tier-button"
+                disabled={project.tiers.length >= 30}
+                onClick={() =>
+                  execute({
+                    type: 'add-tier',
+                    id: crypto.randomUUID(),
+                    label: 'New tier',
+                    color: TIER_COLORS[project.tiers.length % TIER_COLORS.length],
+                  })
+                }
+              >
+                <Plus size={15} /> Add a tier
+              </button>
+            </div>
+          </div>
           <TierBoard
             boardRef={boardRef}
             project={project}
@@ -376,20 +408,6 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
             onTierEdit={onTierEdit}
             onItemOptions={onItemOptions}
           />
-          <button
-            className="add-tier-button"
-            disabled={project.tiers.length >= 30}
-            onClick={() =>
-              execute({
-                type: 'add-tier',
-                id: crypto.randomUUID(),
-                label: 'New tier',
-                color: TIER_COLORS[project.tiers.length % TIER_COLORS.length],
-              })
-            }
-          >
-            <Plus size={15} /> Add a tier
-          </button>
         </div>
       </div>
       <CustomizationPanel
@@ -422,7 +440,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
       ) : null}
       {busy ? (
         <output className="busy-pill">
-          <LoaderCircle size={16} className="animate-spin" />
+          <LoaderCircle aria-hidden="true" size={16} className="animate-spin" />
           {busy}…
         </output>
       ) : null}

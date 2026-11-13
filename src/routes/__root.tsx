@@ -1,5 +1,5 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { ArrowUpRight, Grid2X2, Settings2, CloudOff } from 'lucide-react';
+import { createRootRoute, Link, Outlet, useRouterState } from '@tanstack/react-router';
+import { ArrowUpRight, Grid2X2, Settings2, HardDrive } from 'lucide-react';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { useThemeSynchronization } from '@/app/theme';
@@ -31,33 +31,44 @@ export const Route = createRootRoute({
 function RootLayout() {
   useThemeSynchronization();
   const sidebarVisible = useSidebarStore((state) => state.visible);
+  const inEditor = useRouterState({
+    select: (state) => state.location.pathname.startsWith('/projects/'),
+  });
   return (
     <div className="app-shell" data-sidebar={sidebarVisible ? 'open' : 'closed'}>
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('main-content')?.focus();
+        }}
+      >
+        Skip to content
+      </a>
       <aside id="app-sidebar" className="sidebar" aria-label="Sidebar" hidden={!sidebarVisible}>
         <Link to="/" className="brand" aria-label="Tier Studio home">
           <img src="/icon.svg" width="34" height="34" alt="" />
-          <span>
-            tier studio<span className="brand-dot">.</span>
-          </span>
+          <span>Tier Studio</span>
         </Link>
         <nav aria-label="Main navigation">
+          <p className="nav-section-label" aria-hidden="true">
+            Workspace
+          </p>
           <Link
             to="/"
             activeOptions={{ exact: true }}
-            className="nav-link"
+            className={inEditor ? 'nav-link nav-link-active' : 'nav-link'}
             activeProps={{ className: 'nav-link nav-link-active' }}
           >
-            <Grid2X2 size={18} /> My projects{' '}
-            <span className="nav-arrow">
-              <ArrowUpRight size={14} />
-            </span>
+            <Grid2X2 size={18} aria-hidden="true" /> My projects
           </Link>
           <Link
             to="/settings"
             className="nav-link"
             activeProps={{ className: 'nav-link nav-link-active' }}
           >
-            <Settings2 size={18} /> Settings
+            <Settings2 size={18} aria-hidden="true" /> Settings
           </Link>
         </nav>
         <div className="sidebar-bottom">
@@ -79,12 +90,15 @@ function RootLayout() {
             </div>
           ) : null}
           <div className="sidebar-version">
-            <CloudOff size={14} />
-            <span>Local first · v0.1</span>
+            <HardDrive size={17} aria-hidden="true" />
+            <span>
+              <strong>Local workspace</strong>
+              <small>Saved on this device</small>
+            </span>
           </div>
         </div>
       </aside>
-      <main className="main-content">
+      <main className="main-content" id="main-content" tabIndex={-1}>
         <Outlet />
       </main>
       <Notice />

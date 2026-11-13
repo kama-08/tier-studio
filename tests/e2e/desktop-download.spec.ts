@@ -21,7 +21,7 @@ test('desktop downloads explain project transfer and use the configured public r
     await expect(download).toHaveAttribute('href', links.windowsInstaller);
     await expect(download).toHaveAttribute('target', '_blank');
     await expect(download).toHaveAttribute('rel', 'noopener noreferrer');
-    await expect(download).toHaveCSS('color', 'rgb(24, 24, 27)');
+    await expect(download).toHaveCSS('color', 'rgb(23, 23, 27)');
     await expect(dialog.getByRole('link', { name: /Release notes/ })).toHaveAttribute(
       'href',
       links.releases,
