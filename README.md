@@ -163,7 +163,8 @@ bun run desktop:build:windows
 bun run release:prepare v0.1.0
 ```
 
-The stable installer and checksum are written to ignored `release-artifacts/`.
+The versioned installer, stable download copy, and checksum file are written to
+ignored `release-artifacts/`.
 Signing certificates and automatic desktop updates are not configured. Installers
 are distributed through GitHub Releases; web updates are deployed separately to Cloudflare.
 

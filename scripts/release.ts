@@ -58,13 +58,14 @@ if (command === 'prepare') {
   }
   const artifacts = resolve(root, 'release-artifacts');
   await mkdir(artifacts, { recursive: true });
+  const versionedInstaller = `Tier-Studio-${version}-windows-x64-setup.exe`;
+  await Bun.write(resolve(artifacts, versionedInstaller), installer);
+  // The web download button and README use this stable filename.
   await Bun.write(resolve(artifacts, WINDOWS_INSTALLER_ASSET), installer);
   const checksum = new Bun.CryptoHasher('sha256').update(installer).digest('hex');
   await Bun.write(
     resolve(artifacts, 'SHA256SUMS.txt'),
-    `${checksum}  ${WINDOWS_INSTALLER_ASSET}\n`,
+    `${checksum}  ${versionedInstaller}\n${checksum}  ${WINDOWS_INSTALLER_ASSET}\n`,
   );
-  console.log(
-    `Prepared ${WINDOWS_INSTALLER_ASSET} (${installer.length} bytes), SHA-256 ${checksum}`,
-  );
+  console.log(`Prepared ${versionedInstaller} (${installer.length} bytes), SHA-256 ${checksum}`);
 }

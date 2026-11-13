@@ -72,7 +72,8 @@ jobs:
             gh release create $tag --repo $env:GITHUB_REPOSITORY --verify-tag --draft --title "Tier Studio $tag" --notes-file "docs/releases/$version.md"
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-          gh release upload $tag release-artifacts/Tier-Studio-windows-x64-setup.exe release-artifacts/SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --clobber
+          $installer = "release-artifacts/Tier-Studio-${version}-windows-x64-setup.exe"
+          gh release upload $tag $installer release-artifacts/Tier-Studio-windows-x64-setup.exe release-artifacts/SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --latest
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
