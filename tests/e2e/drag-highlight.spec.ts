@@ -19,10 +19,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
     const poolBackground = await pool.evaluate(
       (element) => getComputedStyle(element).backgroundColor,
     );
-    const highlightColor = await page.evaluate(() => {
+    const highlightColor = await pool.evaluate((element) => {
       const probe = document.createElement('div');
       probe.style.cssText = 'position: fixed; background-color: var(--surface-drop)';
-      document.body.append(probe);
+      element.append(probe);
       const color = getComputedStyle(probe).backgroundColor;
       probe.remove();
       return color;

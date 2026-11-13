@@ -19,7 +19,7 @@ test('PNG exports follow explicit themes and live system theme changes', async (
     const colors = await page.evaluate(() => {
       const style = (selector: string) => getComputedStyle(document.querySelector(selector)!);
       return {
-        background: style('html').backgroundColor,
+        background: style('.editor-page').backgroundColor,
         surface: style('.tier-row').backgroundColor,
         title: style('.project-title-input').color,
         secondary: style('.project-description-input').color,

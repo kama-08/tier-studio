@@ -226,7 +226,7 @@ function readBoardLayout(board: HTMLElement, project: Project) {
   const contentHeight = poolSection
     ? poolSection.getBoundingClientRect().bottom - bounds.top
     : bounds.height;
-  const theme = getComputedStyle(document.documentElement);
+  const theme = getComputedStyle(editor ?? document.documentElement);
   return {
     width: bounds.width,
     height: headerHeight + contentHeight + footerHeight,

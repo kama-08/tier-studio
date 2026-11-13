@@ -195,7 +195,7 @@ test('PNG exports apply image fit, rounded corners, row tints, transparency, and
       size: rect.width,
       itemColor: getComputedStyle(tile).backgroundColor,
       rowColor: getComputedStyle(row).backgroundColor,
-      appBackground: getComputedStyle(document.documentElement).backgroundColor,
+      appBackground: getComputedStyle(row.closest('.editor-page')!).backgroundColor,
       rowY: row.getBoundingClientRect().top - board.top,
       rowH: row.getBoundingClientRect().height,
     };

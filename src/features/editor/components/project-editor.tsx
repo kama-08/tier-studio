@@ -234,7 +234,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
       <div className="editor-page">
         <div className="editor-heading">
           <div className="editor-title-block">
-            <h1 className="workspace-kicker">Ranking editor</h1>
+            <h1 className="sr-only">{project.title}</h1>
             <input
               className="project-title-input"
               aria-label="Project title"
@@ -303,67 +303,63 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
         <fieldset className="editor-toolbar" disabled={conflict}>
           <legend className="sr-only">Board tools</legend>
           <div className="toolbar-main">
-            <div className="toolbar-group">
-              <Button onClick={() => fileInput.current?.click()} disabled={Boolean(busy)}>
-                <ImagePlus aria-hidden="true" size={16} /> Add images
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setTextName('');
-                  setTextOpen(true);
-                }}
-                disabled={Object.keys(project.items).length >= 2000}
-              >
-                <Type aria-hidden="true" size={16} /> Text item
-              </Button>
-            </div>
-            <div className="toolbar-group">
-              <ItemShapePicker
-                value={project.itemShape ?? 'square'}
-                disabled={Boolean(busy)}
-                onChange={(shape) => execute({ type: 'set-item-shape', shape })}
-              />
-              <Button
-                variant="ghost"
-                disabled={Boolean(busy)}
-                onClick={() => setCustomizeOpen(true)}
-              >
-                <SlidersHorizontal aria-hidden="true" size={16} /> Customize
-              </Button>
-            </div>
-            <div className="toolbar-group">
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Undo"
-                title="Undo (Ctrl/⌘ Z)"
-                disabled={!history?.past.length}
-                onClick={undo}
-              >
-                <Undo2 aria-hidden="true" size={17} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Redo"
-                title="Redo (Ctrl/⌘ Shift Z)"
-                disabled={!history?.future.length}
-                onClick={redo}
-              >
-                <Redo2 aria-hidden="true" size={17} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Reset ranking"
-                title="Move all items to Unranked"
-                disabled={!rankedCount}
-                onClick={() => setResetOpen(true)}
-              >
-                <RefreshCcw aria-hidden="true" size={15} />
-              </Button>
-            </div>
+            <Button onClick={() => fileInput.current?.click()} disabled={Boolean(busy)}>
+              <ImagePlus aria-hidden="true" size={16} /> Add images
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setTextName('');
+                setTextOpen(true);
+              }}
+              disabled={itemCount >= 2000}
+            >
+              <Type aria-hidden="true" size={16} /> Text item
+            </Button>
+            <ItemShapePicker
+              value={project.itemShape ?? 'square'}
+              disabled={Boolean(busy)}
+              onChange={(shape) => execute({ type: 'set-item-shape', shape })}
+            />
+            <span className="toolbar-divider" aria-hidden="true" />
+            <Button variant="ghost" disabled={Boolean(busy)} onClick={() => setCustomizeOpen(true)}>
+              <SlidersHorizontal aria-hidden="true" size={16} /> Customize
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Undo"
+              title="Undo (Ctrl/⌘ Z)"
+              disabled={!history?.past.length}
+              onClick={undo}
+            >
+              <Undo2 aria-hidden="true" size={17} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Redo"
+              title="Redo (Ctrl/⌘ Shift Z)"
+              disabled={!history?.future.length}
+              onClick={redo}
+            >
+              <Redo2 aria-hidden="true" size={17} />
+            </Button>
+          </div>
+          <div className="toolbar-summary">
+            <output>
+              {rankedCount} / {itemCount} ranked
+            </output>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Reset ranking"
+              title="Move all items to Unranked"
+              disabled={!rankedCount}
+              onClick={() => setResetOpen(true)}
+            >
+              <RefreshCcw aria-hidden="true" size={15} />
+            </Button>
           </div>
         </fieldset>
         <input
@@ -376,30 +372,21 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
           onChange={(event) => void addImages(Array.from(event.target.files ?? []))}
         />
         <div inert={conflict} className="editor-board-content">
-          <div className="board-heading">
-            <h2>Tier board</h2>
-            <div className="board-heading-actions">
-              <div className="board-progress">
-                <progress aria-label="Ranking progress" value={rankedCount} max={itemCount || 1} />
-                <output>
-                  {rankedCount} of {itemCount} ranked
-                </output>
-              </div>
-              <button
-                className="add-tier-button"
-                disabled={project.tiers.length >= 30}
-                onClick={() =>
-                  execute({
-                    type: 'add-tier',
-                    id: crypto.randomUUID(),
-                    label: 'New tier',
-                    color: TIER_COLORS[project.tiers.length % TIER_COLORS.length],
-                  })
-                }
-              >
-                <Plus size={15} /> Add a tier
-              </button>
-            </div>
+          <div className="board-actions">
+            <button
+              className="add-tier-button"
+              disabled={project.tiers.length >= 30}
+              onClick={() =>
+                execute({
+                  type: 'add-tier',
+                  id: crypto.randomUUID(),
+                  label: 'New tier',
+                  color: TIER_COLORS[project.tiers.length % TIER_COLORS.length],
+                })
+              }
+            >
+              <Plus size={15} aria-hidden="true" /> Add a tier
+            </button>
           </div>
           <TierBoard
             boardRef={boardRef}
