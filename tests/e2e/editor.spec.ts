@@ -63,7 +63,11 @@ test('creates, edits, saves, exports, and imports a project with its image', asy
   const exported = await projectDownload;
   expect(exported.suggestedFilename()).toBe('Weekend-favorites.tier');
   const path = await exported.path();
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
+  await expect(
+    page.getByRole('link', { name: 'Open Weekend favorites', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Try the sample', exact: true })).toHaveCount(0);
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Import project', exact: true }).click();
   await (await chooser).setFiles(path!);
@@ -148,7 +152,7 @@ test('renders the library on a narrow screen without horizontal overflow', async
       () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
     ),
   ).toBe(true);
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   const search = page.getByRole('searchbox', { name: 'Search projects' });
   await search.fill('no matching ranking');
   await expect(page.getByRole('heading', { name: 'No projects found' })).toBeVisible();

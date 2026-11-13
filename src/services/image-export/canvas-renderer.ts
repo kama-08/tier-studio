@@ -178,13 +178,6 @@ export async function renderProjectPng(
         context.fillText(line, 24, 48 + index * 36),
       );
     }
-    if (appearance.exportDescription) {
-      context.fillStyle = colors.secondary;
-      context.font = layout.header.descriptionFont;
-      layout.header.descriptionLines.forEach((line, index) =>
-        context.fillText(line, 24, layout.header.descriptionY + index * 20),
-      );
-    }
     for (const [index, row] of layout.tiers.entries()) {
       const tier = project.tiers[index];
       context.save();

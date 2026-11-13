@@ -18,8 +18,8 @@ test('a stale tab preserves its work as a backup and reloads the saved version',
   await page.getByLabel('Project title', { exact: true }).fill('Saved in tab A');
   await page.getByLabel('Project title', { exact: true }).press('Enter');
   await expect(page.getByText('All changes saved', { exact: true })).toBeVisible();
-  await second.getByLabel('Project description', { exact: true }).fill('My unsaved work in tab B');
-  await second.getByLabel('Project description', { exact: true }).press('Enter');
+  await second.getByLabel('Project title', { exact: true }).fill('My unsaved work in tab B');
+  await second.getByLabel('Project title', { exact: true }).press('Enter');
   await expect(second.getByRole('alert')).toContainText('another tab');
   await expect(second.getByRole('button', { name: 'Add images', exact: true })).toBeDisabled();
   await expect(second.getByLabel('Project title', { exact: true })).toBeDisabled();
@@ -28,19 +28,16 @@ test('a stale tab preserves its work as a backup and reloads the saved version',
   await second.getByRole('button', { name: 'Save project copy', exact: true }).click();
   const download = await downloading;
   const backup = unpackProject(new Uint8Array(await readFile((await download.path())!)));
-  expect(backup.project.description).toBe('My unsaved work in tab B');
+  expect(backup.project.title).toBe('My unsaved work in tab B');
   await page.reload();
   await expect(page.getByLabel('Project title', { exact: true })).toHaveValue('Saved in tab A');
-  await expect(page.getByLabel('Project description', { exact: true })).not.toHaveValue(
-    'My unsaved work in tab B',
-  );
   await second.getByRole('button', { name: 'Reload latest', exact: true }).click();
   await expect(second.getByLabel('Project title', { exact: true })).toHaveValue('Saved in tab A');
-  await second.getByLabel('Project description', { exact: true }).fill('Resolved from tab B');
-  await second.getByLabel('Project description', { exact: true }).press('Enter');
+  await second.getByLabel('Project title', { exact: true }).fill('Resolved from tab B');
+  await second.getByLabel('Project title', { exact: true }).press('Enter');
   await expect(second.getByText('All changes saved', { exact: true })).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel('Project description', { exact: true })).toHaveValue(
+  await expect(page.getByLabel('Project title', { exact: true })).toHaveValue(
     'Resolved from tab B',
   );
 });
@@ -56,7 +53,7 @@ test('deleting in another tab does not resurrect the project on a stale edit', a
   await expect(second.getByLabel('Project title', { exact: true })).toHaveValue(
     'The little things',
   );
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   await page.getByRole('button', { name: 'Delete The little things', exact: true }).click();
   await page.getByRole('button', { name: 'Delete project', exact: true }).click();
   await expect(page.getByRole('link', { name: 'Open The little things' })).toHaveCount(0);

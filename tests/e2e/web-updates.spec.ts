@@ -108,10 +108,8 @@ test('does not activate an app update when the current project has a save confli
     await second.getByLabel('Project title', { exact: true }).fill('Saved in another tab');
     await second.getByLabel('Project title', { exact: true }).press('Enter');
     await expect(second.getByText('All changes saved', { exact: true })).toBeVisible();
-    await page
-      .getByLabel('Project description', { exact: true })
-      .fill('Keep my unsaved description');
-    await page.getByLabel('Project description', { exact: true }).press('Enter');
+    await page.getByLabel('Project title', { exact: true }).fill('Keep my unsaved title');
+    await page.getByLabel('Project title', { exact: true }).press('Enter');
     await expect(page.getByRole('alert')).toContainText('another tab');
 
     server.nextVersion();
@@ -121,8 +119,8 @@ test('does not activate an app update when the current project has a save confli
     await prompt.getByRole('button', { name: 'Update now', exact: true }).click();
     await expect(prompt.getByRole('alert')).toContainText('another tab');
     await expect(prompt.getByRole('button', { name: 'Update now', exact: true })).toBeEnabled();
-    await expect(page.getByLabel('Project description', { exact: true })).toHaveValue(
-      'Keep my unsaved description',
+    await expect(page.getByLabel('Project title', { exact: true })).toHaveValue(
+      'Keep my unsaved title',
     );
     expect(page.url()).toBe(projectURL);
     expect(

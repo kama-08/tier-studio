@@ -154,11 +154,11 @@ test('fills wrapped tiers with consistent square tiles and preserves their geome
       { base64: bytes.toString('base64'), colors: board.tiles.map((tile) => tile.color) },
     );
     expect(Math.abs(exported.width - board.width * 2)).toBeLessThanOrEqual(1);
-    expect(Math.abs(exported.height - (108 + board.height + 48) * 2)).toBeLessThanOrEqual(1);
+    expect(Math.abs(exported.height - (84 + board.height + 48) * 2)).toBeLessThanOrEqual(1);
     for (const tile of board.tiles) {
       const rectangle = exported.rectangles[tile.color];
       expect(Math.abs(rectangle.left - tile.x * 2), `${name}: image x`).toBeLessThanOrEqual(2);
-      expect(Math.abs(rectangle.top - (108 + tile.y) * 2), `${name}: image y`).toBeLessThanOrEqual(
+      expect(Math.abs(rectangle.top - (84 + tile.y) * 2), `${name}: image y`).toBeLessThanOrEqual(
         2,
       );
       expect(
@@ -343,7 +343,7 @@ test('compact and custom item sizes fill wrapped rows after resizing, and export
       const board = element.closest('.tier-board')!.getBoundingClientRect();
       const tiles = Array.from(element.children).map((tile) => tile.getBoundingClientRect());
       return {
-        y: 108 + tiles[0].y - board.y + tiles[0].height / 2,
+        y: 84 + tiles[0].y - board.y + tiles[0].height / 2,
         spans: tiles
           .filter((tile) => Math.abs(tile.y - tiles[0].y) < 1)
           .map((tile) => ({ x: tile.x - board.x, width: tile.width })),

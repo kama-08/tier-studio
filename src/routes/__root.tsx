@@ -46,7 +46,7 @@ function RootLayout() {
       >
         Skip to content
       </a>
-      <aside id="app-sidebar" className="sidebar" aria-label="Sidebar" hidden={!sidebarVisible}>
+      <aside id="app-sidebar" className="sidebar" aria-label="Sidebar" inert={!sidebarVisible}>
         <Link to="/" className="brand" aria-label="Tier Studio home">
           <img src="/icon.svg" width="34" height="34" alt="" />
           <span>Tier Studio</span>

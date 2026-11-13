@@ -306,9 +306,7 @@ try {
     };
   });
   // Leave the field focused: Quit must also commit its blur handler.
-  await page
-    .getByLabel('Project description', { exact: true })
-    .fill('Committed from a focused field');
+  await page.getByLabel('Project title', { exact: true }).fill('Committed from a focused title');
   const exited = new Promise<number | null>((done) => primary.once('exit', done));
   await invoke('request_quit');
   await expect
@@ -355,13 +353,15 @@ try {
   page =
     reopenedContext.pages()[0] ?? (await reopenedContext.waitForEvent('page', { timeout: 10000 }));
   await expect(
-    page.getByRole('link', { name: 'Open Saved by safe quit', exact: true }),
+    page.getByRole('link', { name: 'Open Committed from a focused title', exact: true }),
   ).toBeVisible();
-  await page.getByRole('link', { name: 'Open Saved by safe quit', exact: true }).click();
-  await expect(page.getByLabel('Project description', { exact: true })).toHaveValue(
-    'Committed from a focused field',
+  await page
+    .getByRole('link', { name: 'Open Committed from a focused title', exact: true })
+    .click();
+  await expect(page.getByLabel('Project title', { exact: true })).toHaveValue(
+    'Committed from a focused title',
   );
-  console.log('PASS: reopening after Quit retains the last title and focused description.');
+  console.log('PASS: reopening after Quit retains the focused title.');
 } catch (error) {
   const results = resolve(import.meta.dir, '../../test-results');
   await mkdir(results, { recursive: true });

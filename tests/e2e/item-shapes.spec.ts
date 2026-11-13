@@ -117,7 +117,8 @@ test('project-wide shapes apply to images and text, undo, resize, reload, and tr
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Save project', exact: true }).click();
   const saved = await downloading;
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('button', { name: 'Show sidebar', exact: true }).click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   const preview = page.getByRole('link', { name: 'Open Item shapes', exact: true });
   await expect
     .poll(() =>
@@ -160,7 +161,7 @@ test('PNG exports preserve rectangles, circular masks, and uncropped originals; 
         const board = element.closest('.tier-board')!.getBoundingClientRect();
         return {
           x: tile.x - board.x,
-          y: 108 + tile.y - board.y,
+          y: 84 + tile.y - board.y,
           width: tile.width,
           height: tile.height,
           surface: getComputedStyle(element.closest('.tier-row')!).backgroundColor,

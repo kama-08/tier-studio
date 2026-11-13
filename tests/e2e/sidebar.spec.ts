@@ -17,6 +17,7 @@ test('toggles the sidebar with the keyboard and remembers it across pages and re
   const show = page.getByRole('button', { name: 'Show sidebar', exact: true });
   await expect(show).toBeFocused();
   await expect(show).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
   await expect(sidebar).toBeHidden();
   expect((await main.boundingBox())?.x).toBe(0);
   await page.getByRole('button', { name: 'Try the sample', exact: true }).click();
@@ -30,7 +31,11 @@ test('toggles the sidebar with the keyboard and remembers it across pages and re
   await page.getByRole('button', { name: 'Text item', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Add text item', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'My projects', exact: true })).toHaveCount(0);
+  await show.press('Space');
   await page.getByRole('link', { name: 'My projects', exact: true }).click();
+  await hide.click();
+  await expect(sidebar).toBeHidden();
   await page.getByRole('button', { name: 'Duplicate The little things', exact: true }).click();
   const notice = page.getByRole('status').filter({ hasText: 'Project duplicated.' });
   await expect(notice).toBeVisible();
@@ -43,7 +48,7 @@ test('toggles the sidebar with the keyboard and remembers it across pages and re
   await expect(hide).toBeFocused();
   await expect(hide).toHaveAttribute('aria-expanded', 'true');
   await expect(sidebar).toBeVisible();
-  expect((await main.boundingBox())?.x).toBe(228);
+  await expect.poll(async () => (await main.boundingBox())?.x).toBe(228);
   await page.getByRole('link', { name: 'Settings', exact: true }).click();
   await expect(hide).toBeVisible();
   await hide.click();
@@ -82,12 +87,12 @@ test('keeps the editor usable with either sidebar state at mobile and desktop wi
     expect((await main.boundingBox())?.x).toBe(0);
   }
   await show.click();
-  expect((await main.boundingBox())?.x).toBe(228);
+  await expect.poll(async () => (await main.boundingBox())?.x).toBe(228);
   await page.setViewportSize({ width: 1024, height: 900 });
-  expect((await main.boundingBox())?.x).toBe(198);
+  await expect.poll(async () => (await main.boundingBox())?.x).toBe(198);
   await page.setViewportSize({ width: 360, height: 800 });
   await expect(sidebar).toBeVisible();
-  expect((await main.boundingBox())?.x).toBe(0);
+  await expect.poll(async () => (await main.boundingBox())?.x).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );

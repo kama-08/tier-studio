@@ -10,12 +10,20 @@ test('PNG export ignores unused or hidden corrupt assets and previews a fixed ou
 }, testInfo) => {
   await page.goto('/');
   const project = createSampleProject();
-  project.appearance = { ...DEFAULT_APPEARANCE, exportWidth: 1200, exportScale: 3 };
+  project.description = 'A legacy description preserved in the project file. '
+    .repeat(8)
+    .slice(0, 500);
+  const appearance = {
+    ...DEFAULT_APPEARANCE,
+    exportDescription: true,
+    exportWidth: 1200,
+    exportScale: 3,
+  };
   // An invalid image in Unranked is excluded unless that section is exported.
   const hidden = project.unranked[0];
   project.items[hidden].assetId = 'hidden-corrupt';
   const bytes = zipSync({
-    'project.json': strToU8(JSON.stringify(project)),
+    'project.json': strToU8(JSON.stringify({ ...project, appearance })),
     'assets.json': strToU8(
       JSON.stringify([
         { id: 'unused-corrupt', name: 'Unused.png', mime: 'image/png' },
@@ -40,12 +48,30 @@ test('PNG export ignores unused or hidden corrupt assets and previews a fixed ou
   await dialog.getByLabel('Resolution', { exact: true }).selectOption('2');
   await expect(dialog.locator('output')).toContainText('1,600');
   await expect(dialog.getByRole('button', { name: 'Download PNG', exact: true })).toBeEnabled();
+  const previewHeight = await dialog
+    .getByAltText('PNG export preview')
+    .evaluate(async (image: HTMLImageElement) => {
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d')!;
+      context.drawImage(image, 0, 0);
+      const background = context.getImageData(0, 0, 1, 1).data;
+      // The band below the title used to contain the description.
+      const band = context.getImageData(0, 60, canvas.width, 22).data;
+      return band.every((channel, index) => channel === background[index % 4])
+        ? image.naturalHeight
+        : 0;
+    });
+  expect(previewHeight).toBeGreaterThan(0);
   await page.screenshot({ path: testInfo.outputPath('export-preview.png'), fullPage: true });
   const downloading = page.waitForEvent('download');
   await dialog.getByRole('button', { name: 'Download PNG', exact: true }).click();
   const png = await readFile((await (await downloading).path())!);
   expect(png.readUInt32BE(16)).toBe(1600);
   const height = png.readUInt32BE(20);
+  expect(height).toBeCloseTo(previewHeight * 2, -1);
   await dialog.getByRole('button', { name: 'Close', exact: true }).click();
   expect(await page.locator('.tier-board').boundingBox()).toEqual(before);
   await page.setViewportSize({ width: 390, height: 850 });
@@ -62,12 +88,6 @@ test('PNG export ignores unused or hidden corrupt assets and previews a fixed ou
         .slice(0, 160),
     );
   await page.getByLabel('Project title', { exact: true }).press('Enter');
-  await page
-    .getByLabel('Project description', { exact: true })
-    .fill(
-      'A longer description that stays readable in the exported image. '.repeat(8).slice(0, 500),
-    );
-  await page.getByLabel('Project description', { exact: true }).press('Enter');
   const wrappedDownload = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export PNG', exact: true }).click();
   const wrapped = await readFile((await (await wrappedDownload).path())!);
@@ -79,5 +99,6 @@ test('PNG export ignores unused or hidden corrupt assets and previews a fixed ou
     new Uint8Array(await readFile((await (await projectDownload).path())!)),
   );
   expect(archive.project.appearance).toMatchObject({ exportWidth: 800, exportScale: 2 });
+  expect(archive.project.description).toBe(project.description);
   await expect(page.locator('[data-export-snapshot]')).toHaveCount(0);
 });

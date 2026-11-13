@@ -25,7 +25,7 @@ test('image cleanup preserves undo and backups in other tabs, then removes unuse
   await second.goto(page.url());
   await expect(second.getByRole('img', { name: 'Keep', exact: true })).toBeVisible();
   // Populate and verify the small library thumbnail cache.
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   await expect(page.locator('.project-card .mini-item img')).toBeVisible();
   const assetInfo = () =>
     page.evaluate(async () => {
@@ -60,7 +60,7 @@ test('image cleanup preserves undo and backups in other tabs, then removes unuse
   await expect(page.getByRole('img', { name: 'Keep', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Redo', exact: true }).click();
   await expect(page.getByText('All changes saved', { exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   expect((await assetInfo()).count).toBe(1);
   // The stale second tab can still back up its image after the first tab left.
   const downloading = second.waitForEvent('download');

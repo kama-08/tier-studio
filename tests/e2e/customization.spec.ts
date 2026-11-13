@@ -87,7 +87,8 @@ test('customizations preview live, group a slider gesture into one undo, persist
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Save project', exact: true }).click();
   const savedProject = await downloading;
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('button', { name: 'Show sidebar', exact: true }).click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   await page.getByRole('button', { name: 'New project', exact: true }).click();
   await page.getByLabel('Project name', { exact: true }).fill('Reuse style');
   await page.getByRole('button', { name: 'Create project', exact: true }).click();
@@ -104,12 +105,13 @@ test('customizations preview live, group a slider gesture into one undo, persist
   await page.getByRole('button', { name: 'Delete style My compact style', exact: true }).click();
   await expect(page.getByRole('button', { name: 'My compact style', exact: true })).toHaveCount(0);
   await closePanel(page);
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   const choosing = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Import project', exact: true }).click();
   await (await choosing).setFiles((await savedProject.path())!);
   await expect(firstTile(page)).toHaveCSS('width', '64px');
   await expect(firstTile(page)).toHaveCSS('border-radius', '32px');
+  await page.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
 
   await page.setViewportSize({ width: 390, height: 844 });
   await openPanel(page);
@@ -179,7 +181,6 @@ test('PNG exports apply image fit, rounded corners, row tints, transparency, and
   await page.getByLabel('Item shadows', { exact: true }).uncheck();
   await page.getByLabel('Transparent background', { exact: true }).check();
   await page.getByLabel('Include title', { exact: true }).uncheck();
-  await page.getByLabel('Include description', { exact: true }).uncheck();
   await page.getByLabel('Include footer', { exact: true }).uncheck();
   await closePanel(page);
   const rects = await page.evaluate(() => {
@@ -265,11 +266,10 @@ test('PNG exports apply image fit, rounded corners, row tints, transparency, and
   expect(crop.height).toBeGreaterThan(fit.height + 200);
   await openPanel(page);
   await page.getByLabel('Include title', { exact: true }).check();
-  await page.getByLabel('Include description', { exact: true }).check();
   await page.getByLabel('Include footer', { exact: true }).check();
   await page.getByLabel('Transparent background', { exact: true }).uncheck();
   await closePanel(page);
   const headers = await exportPixels('all-sections');
-  expect(headers.height - crop.height).toBe(312);
+  expect(headers.height - crop.height).toBe(264);
   expect(headers.background).toEqual(headers.appBackground);
 });

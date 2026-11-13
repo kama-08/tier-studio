@@ -20,12 +20,22 @@ test('keeps a selected theme across pages, dialogs, and reloads', async ({ page 
   await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await page.getByRole('button', { name: 'Try the sample', exact: true }).click();
   await expect(page.getByLabel('Project title', { exact: true })).toHaveValue('The little things');
+  const expectWorkspaceBackground = async () => {
+    const background = await page
+      .locator('html')
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    for (const selector of ['#app-sidebar', '.editor-topbar', '.editor-page']) {
+      await expect(page.locator(selector)).toHaveCSS('background-color', background);
+    }
+  };
+  await expectWorkspaceBackground();
   const tierColor = await page
     .getByRole('button', { name: 'Edit tier S', exact: true })
     .evaluate((element) => getComputedStyle(element).backgroundColor);
   await page.screenshot({ path: 'test-results/theme-editor-dark.png', fullPage: true });
   await page.getByRole('button', { name: 'Switch to light theme', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expectWorkspaceBackground();
   expect(
     await page
       .getByRole('button', { name: 'Edit tier S', exact: true })

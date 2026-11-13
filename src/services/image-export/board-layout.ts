@@ -105,39 +105,22 @@ function readBoardLayout(board: HTMLElement, project: Project) {
   const poolSection = appearance.exportUnranked
     ? board.parentElement?.querySelector<HTMLElement>('.unranked-section')
     : null;
-  const baseHeaderHeight = appearance.exportTitle
-    ? appearance.exportDescription
-      ? 108
-      : 84
-    : appearance.exportDescription
-      ? 64
-      : 0;
   const footerHeight = appearance.exportFooter ? 48 : 0;
   const bounds = board.getBoundingClientRect();
   const context = document.createElement('canvas').getContext('2d');
   if (!context) throw new Error('Image export is unavailable.');
   const editor = board.closest('.editor-page');
-  const family = (selector: string) => {
-    const element = editor?.querySelector(selector);
-    return getComputedStyle(element ?? board).fontFamily;
-  };
-  const titleFont = `600 30px ${family('.project-title-input')}`;
-  const descriptionFont = `14px ${family('.project-description-input')}`;
-  const headerLines = (text: string, font: string) => {
-    context.font = font;
-    return wrapText(
-      text,
-      Math.max(1, bounds.width - 48),
-      (value) => context.measureText(value).width,
-    );
-  };
-  const titleLines = appearance.exportTitle ? headerLines(project.title, titleFont) : [];
-  const descriptionLines = appearance.exportDescription
-    ? headerLines(project.description || 'A ranking by me.', descriptionFont)
+  const titleElement = editor?.querySelector('.project-title-input') ?? board;
+  const titleFont = `600 30px ${getComputedStyle(titleElement).fontFamily}`;
+  context.font = titleFont;
+  const titleLines = appearance.exportTitle
+    ? wrapText(
+        project.title,
+        Math.max(1, bounds.width - 48),
+        (text) => context.measureText(text).width,
+      )
     : [];
-  const titleExtra = Math.max(0, titleLines.length - 1) * 36;
-  const headerHeight =
-    baseHeaderHeight + titleExtra + Math.max(0, descriptionLines.length - 1) * 20;
+  const headerHeight = appearance.exportTitle ? 84 + Math.max(0, titleLines.length - 1) * 36 : 0;
   if (bounds.width <= 0) throw new Error('The board must be visible to export it.');
   const rows = new Map(
     Array.from(board.querySelectorAll<HTMLElement>('.tier-row'), (row) => [
@@ -230,13 +213,9 @@ function readBoardLayout(board: HTMLElement, project: Project) {
   return {
     width: bounds.width,
     height: headerHeight + contentHeight + footerHeight,
-    headerHeight,
     header: {
       titleFont,
-      descriptionFont,
       titleLines,
-      descriptionLines,
-      descriptionY: (appearance.exportTitle ? 76 : 40) + titleExtra,
     },
     tiers,
     unranked,

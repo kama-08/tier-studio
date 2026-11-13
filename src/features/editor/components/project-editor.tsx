@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useBlocker, useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 import {
   ArrowDownToLine,
-  ArrowLeft,
   Check,
   ImagePlus,
   LoaderCircle,
@@ -211,9 +210,6 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
       <header className="editor-topbar">
         <div className="topbar-leading">
           <SidebarToggle />
-          <Link to="/" className="back-link">
-            <ArrowLeft size={16} aria-hidden="true" /> My projects
-          </Link>
         </div>
         <div className="topbar-actions">
           <ThemeToggle />
@@ -243,19 +239,6 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               defaultValue={project.title}
               maxLength={160}
               onBlur={(event) => execute({ type: 'rename', title: event.target.value })}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') event.currentTarget.blur();
-              }}
-            />
-            <input
-              className="project-description-input"
-              aria-label="Project description"
-              disabled={conflict}
-              key={`${project.id}-description-${project.description}`}
-              defaultValue={project.description}
-              maxLength={500}
-              placeholder="Description (optional)"
-              onBlur={(event) => execute({ type: 'describe', description: event.target.value })}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') event.currentTarget.blur();
               }}

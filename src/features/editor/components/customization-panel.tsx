@@ -275,11 +275,6 @@ export function CustomizationPanel({
           onChange={(value) => change('exportTitle', value)}
         />
         <Toggle
-          label="Include description"
-          checked={appearance.exportDescription}
-          onChange={(value) => change('exportDescription', value)}
-        />
-        <Toggle
           label="Include Unranked"
           checked={appearance.exportUnranked}
           onChange={(value) => change('exportUnranked', value)}

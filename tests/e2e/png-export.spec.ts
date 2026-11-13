@@ -22,7 +22,7 @@ test('PNG exports follow explicit themes and live system theme changes', async (
         background: style('.editor-page').backgroundColor,
         surface: style('.tier-row').backgroundColor,
         title: style('.project-title-input').color,
-        secondary: style('.project-description-input').color,
+        secondary: style('.editor-page').getPropertyValue('--color-secondary').trim(),
         tier: style('.tier-label').backgroundColor,
         item: style('.item-tile').backgroundColor,
       };
@@ -69,7 +69,7 @@ test('PNG exports follow explicit themes and live system theme changes', async (
     expect(pixels.background, `${name}: page background`).toEqual(pixels.samples.background);
     expect(pixels.surface, `${name}: tier background`).toEqual(pixels.samples.surface);
     expect(pixels.counts.title, `${name}: readable title`).toBeGreaterThan(100);
-    expect(pixels.counts.secondary, `${name}: readable description/footer`).toBeGreaterThan(10);
+    expect(pixels.counts.secondary, `${name}: readable footer`).toBeGreaterThan(10);
     expect(pixels.counts.tier, `${name}: original tier color`).toBeGreaterThan(1000);
     expect(pixels.counts.item, `${name}: original item color`).toBeGreaterThan(1000);
     await expect(page.getByRole('button', { name: 'Export PNG', exact: true })).toBeEnabled();
@@ -145,7 +145,7 @@ test('PNG reclaims the row-control column, reflows original images and Unranked,
     'assets/red': Buffer.from(images[0], 'base64'),
     'assets/blue': Buffer.from(images[1], 'base64'),
   });
-  await page.getByRole('link', { name: 'My projects', exact: true }).last().click();
+  await page.getByRole('link', { name: 'My projects', exact: true }).click();
   const choosing = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Import project', exact: true }).click();
   await (
@@ -176,13 +176,13 @@ test('PNG reclaims the row-control column, reflows original images and Unranked,
         tileYs: tiles.map((tile) => tile.y - board.y),
         last: {
           x: tiles.at(-1)!.right - board.x - 4,
-          y: 108 + tiles.at(-1)!.y - board.y + tiles.at(-1)!.height / 2,
+          y: 84 + tiles.at(-1)!.y - board.y + tiles.at(-1)!.height / 2,
         },
         pool: {
           x: poolItem.x - board.x + poolItem.width / 2,
-          y: 108 + poolItem.y - board.y + poolItem.height / 2,
+          y: 84 + poolItem.y - board.y + poolItem.height / 2,
         },
-        totalHeight: 108 + pool.bottom - board.y + 48,
+        totalHeight: 84 + pool.bottom - board.y + 48,
         controlX: row.querySelector('.tier-row-actions')?.getBoundingClientRect().left,
         boardX: board.x,
       };

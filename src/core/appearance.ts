@@ -17,7 +17,6 @@ export const appearanceSchema = z.object({
   itemBorder: z.boolean().default(false),
   itemShadow: z.boolean().default(true),
   exportTitle: z.boolean().default(true),
-  exportDescription: z.boolean().default(true),
   exportUnranked: z.boolean().default(false),
   exportFooter: z.boolean().default(true),
   exportTransparent: z.boolean().default(false),

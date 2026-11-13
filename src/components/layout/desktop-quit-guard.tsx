@@ -13,7 +13,7 @@ export function DesktopQuitGuard() {
   const quit = useCallback(async () => {
     if (inFlight.current) return;
     inFlight.current = true;
-    // Inputs commit on blur, so include the last typed title/description.
+    // The project title commits on blur, so include the last typed value.
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     setStatus('saving');
     try {

@@ -145,7 +145,7 @@ export function ItemShapePicker({
         }}
       >
         <CurrentIcon size={16} strokeWidth={1.7} aria-hidden="true" />
-        <span>Shape: {current.label}</span>
+        <span>{current.label}</span>
         <ChevronDown size={13} aria-hidden="true" />
       </button>
       {expanded ? (

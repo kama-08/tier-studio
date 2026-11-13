@@ -19,7 +19,6 @@
 :root {
   color-scheme: light;
   --titlebar-height: 0px;
-  --surface-sidebar: #fdfcff;
   --sample-background: #f2edf9;
   --sample-dot: #d6cae7;
   --status-good: #265841;
@@ -53,7 +52,6 @@
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --surface-sidebar: #1c1b22;
   --sample-background: #24202e;
   --sample-dot: #463955;
   --status-good: #b3e0c7;
@@ -127,7 +125,10 @@ input:focus-visible {
   background: var(--selection-background);
 }
 .app-shell {
-  --sidebar-width: 228px;
+  --sidebar-size: 228px;
+  --sidebar-width: var(--sidebar-size);
+  --sidebar-motion: 200ms;
+  --sidebar-easing: cubic-bezier(0.2, 0, 0, 1);
   min-height: calc(100dvh - var(--titlebar-height));
 }
 .desktop-frame {
@@ -207,16 +208,21 @@ input:focus-visible {
 .sidebar {
   position: fixed;
   inset: var(--titlebar-height) auto 0 0;
-  width: var(--sidebar-width);
+  width: var(--sidebar-size);
   padding: 35px 22px;
   display: flex;
   flex-direction: column;
   background: var(--app-background);
   border-right: 1px solid var(--color-line);
   z-index: 20;
+  transition:
+    transform var(--sidebar-motion) var(--sidebar-easing),
+    visibility 0s;
 }
-.sidebar[hidden] {
-  display: none;
+.app-shell[data-sidebar='closed'] .sidebar {
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition-delay: 0s, var(--sidebar-motion);
 }
 .brand {
   display: flex;
@@ -294,6 +300,7 @@ input:focus-visible {
 .main-content {
   margin-left: var(--sidebar-width);
   min-height: calc(100dvh - var(--titlebar-height));
+  transition: margin-left var(--sidebar-motion) var(--sidebar-easing);
 }
 .page-topbar,
 .editor-topbar {
@@ -535,14 +542,6 @@ input:focus-visible {
   gap: 7px;
   margin-top: 5px;
 }
-.back-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-olive);
-  font-size: 12px;
-  white-space: nowrap;
-}
 .save-indicator {
   display: flex;
   align-items: center;
@@ -551,8 +550,7 @@ input:focus-visible {
   color: var(--color-secondary);
 }
 .editor-page {
-  /* The board keeps its original palette inside the redesigned shell. */
-  --app-background: #f7f7f2;
+  /* Keep the original board palette on the shared workspace background. */
   --color-ink: #292f29;
   --color-secondary: #626b5e;
   --color-olive: #596647;
@@ -574,7 +572,6 @@ input:focus-visible {
   color: var(--color-ink);
 }
 :root[data-theme='dark'] .editor-page {
-  --app-background: #18181b;
   --color-ink: #f4f4f5;
   --color-secondary: #a1a1aa;
   --color-olive: #d4d4d8;
@@ -614,16 +611,7 @@ input:focus-visible {
   margin: 0 0 4px;
   text-overflow: ellipsis;
 }
-.project-description-input {
-  font-size: 12px;
-  color: var(--color-secondary);
-  background: transparent;
-  outline: none;
-  width: 100%;
-  text-overflow: ellipsis;
-}
-.project-title-input:focus,
-.project-description-input:focus {
+.project-title-input:focus {
   background: var(--surface-hover);
   border-radius: 4px;
 }
@@ -1499,7 +1487,7 @@ input:focus-visible {
 }
 @media (max-width: 1150px) {
   .app-shell {
-    --sidebar-width: 198px;
+    --sidebar-size: 198px;
   }
   .sidebar {
     padding-inline: 18px;
@@ -1531,6 +1519,9 @@ input:focus-visible {
 @media (max-width: 800px) {
   .app-shell {
     --sidebar-width: 0px;
+  }
+  .main-content {
+    transition: none;
   }
   .sidebar {
     position: sticky;
@@ -1675,7 +1666,6 @@ input:focus-visible {
   outline: none;
 }
 .sidebar {
-  background: var(--surface-sidebar);
   padding-block: 24px;
   overflow: auto;
 }
@@ -1729,8 +1719,11 @@ input:focus-visible {
 .page-topbar,
 .editor-topbar {
   height: 64px;
-  background: var(--surface-sidebar);
+  background: var(--app-background);
   font-size: 13px;
+}
+.editor-topbar {
+  padding-inline-start: 12px;
 }
 .topbar-leading > span {
   font-weight: 550;
@@ -1835,22 +1828,6 @@ input:focus-visible {
   border-radius: 20px;
   background: var(--sample-background);
   overflow: clip;
-}
-.library-page > section + .sample-panel {
-  margin-top: 28px;
-}
-.sample-panel[data-compact='true'] {
-  display: block;
-  padding: 20px 24px;
-}
-.sample-panel[data-compact='true'] .sample-copy h2 {
-  margin-top: 0;
-  font-size: 20px;
-}
-.sample-panel[data-compact='true'] .sample-copy p {
-  max-width: 60ch;
-  margin-bottom: 12px;
-  font-size: 14px;
 }
 .sample-label {
   display: inline-flex;
@@ -1964,11 +1941,6 @@ input:focus-visible {
   flex-wrap: wrap;
   font-size: 12px;
 }
-.back-link {
-  min-height: 44px;
-  font-size: 13px;
-  color: var(--color-ink);
-}
 .save-indicator {
   font-size: 12px;
   padding: 5px 9px;
@@ -2075,10 +2047,23 @@ input:focus-visible {
 }
 @media (max-width: 800px) {
   .sidebar {
-    overflow: visible;
+    overflow: clip;
     top: var(--titlebar-height);
     height: 56px;
     padding: 0 12px;
+    border-bottom: 0;
+    box-shadow: inset 0 -1px var(--color-line);
+    transition:
+      height var(--sidebar-motion) var(--sidebar-easing),
+      transform var(--sidebar-motion) var(--sidebar-easing),
+      opacity var(--sidebar-motion) ease-out,
+      visibility 0s;
+  }
+  .app-shell[data-sidebar='closed'] .sidebar {
+    height: 0;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition-delay: 0s, 0s, 0s, var(--sidebar-motion);
   }
   .brand {
     font-size: 15px;
@@ -2145,8 +2130,7 @@ input:focus-visible {
   .search-field {
     width: 100%;
   }
-  .search-field input,
-  .project-description-input {
+  .search-field input {
     font-size: 16px;
   }
   .sample-panel {
@@ -2190,6 +2174,9 @@ input:focus-visible {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .app-shell {
+    --sidebar-motion: 0s;
+  }
   *,
   *::before,
   *::after {

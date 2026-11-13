@@ -240,36 +240,28 @@ export function ProjectLibrary() {
   const query = search.trim().toLocaleLowerCase();
   const filtered = library.filter((project) => project.title.toLocaleLowerCase().includes(query));
   const samplePanel = (
-    <section
-      className="sample-panel"
-      aria-labelledby="sample-heading"
-      data-compact={library.length > 0}
-    >
+    <section className="sample-panel" aria-labelledby="sample-heading">
       <div className="sample-copy">
-        {library.length === 0 ? (
-          <span className="sample-label">
-            <LayoutGrid size={14} aria-hidden="true" /> Sample board
-          </span>
-        ) : null}
-        <h2 id="sample-heading">{library.length ? 'Try a sample board' : 'Start a tier list'}</h2>
+        <span className="sample-label">
+          <LayoutGrid size={14} aria-hidden="true" /> Sample board
+        </span>
+        <h2 id="sample-heading">Start a tier list</h2>
         <p>Explore a ready-made ranking, or create a blank project and make it yours.</p>
         <Button onClick={() => void openNew(createSampleProject())} disabled={busy}>
           Try the sample <ArrowUpRight size={16} aria-hidden="true" />
         </Button>
       </div>
-      {library.length === 0 ? (
-        <div className="sample-art" aria-hidden="true">
-          <div className="sample-board">
-            <div className="sample-board-title">
-              <span className="sample-board-mark">
-                <LayoutGrid size={15} />
-              </span>{' '}
-              The little things
-            </div>
-            <MiniBoard project={sample} hero />
+      <div className="sample-art" aria-hidden="true">
+        <div className="sample-board">
+          <div className="sample-board-title">
+            <span className="sample-board-mark">
+              <LayoutGrid size={15} />
+            </span>{' '}
+            The little things
           </div>
+          <MiniBoard project={sample} hero />
         </div>
-      ) : null}
+      </div>
     </section>
   );
   return (
@@ -371,7 +363,6 @@ export function ProjectLibrary() {
             </div>
           )}
         </section>
-        {!loading && library.length > 0 && !query ? samplePanel : null}
       </div>
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} title="New project">
         <form
