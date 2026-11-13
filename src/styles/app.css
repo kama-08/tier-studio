@@ -1727,8 +1727,6 @@ input:focus-visible {
   height: 64px;
   background: var(--app-background);
   font-size: 13px;
-}
-.editor-topbar {
   padding-inline-start: 12px;
 }
 .topbar-leading > span {
