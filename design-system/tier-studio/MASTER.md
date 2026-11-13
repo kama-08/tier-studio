@@ -16,6 +16,6 @@ Based on the Minimalism & Swiss Style direction from `ui-ux-pro-max` for a creat
 - Use a 4/8px spacing rhythm, surface borders, and shared controls. Reserve saturated color for actions, focus, and user-selected tier colors.
 - Use Lucide SVGs with accessible names on icon-only controls. Project colors choose black or white ink by contrast; export reads the same computed styles.
 - Keep the library searchable and show a compact sample when the library is empty or after saved projects when it has content.
-- Keep the editor's original compact toolbar and neutral board surfaces, with the ranked count at the end of the toolbar. Keep **Add a tier** above the board and item options available without dragging. PNGs use the editor's palette.
+- Keep the editor's original compact toolbar and neutral board surfaces, with the ranked count, reset, and **Add a tier** grouped at the end of the Board tools fieldset. Keep item options available without dragging. PNGs use the editor's palette.
 - Collapse the sidebar to a horizontal navigation bar at narrow widths. Keep headings, actions, and toolbar groups able to wrap.
 - Keep visible keyboard focus, a skip link, and reduced motion. Recheck primary text contrast in both themes and verify narrow portrait, landscape, and desktop layouts.

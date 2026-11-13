@@ -360,20 +360,8 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
             >
               <RefreshCcw aria-hidden="true" size={15} />
             </Button>
-          </div>
-        </fieldset>
-        <input
-          className="sr-only"
-          ref={fileInput}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
-          multiple
-          aria-label="Choose images"
-          onChange={(event) => void addImages(Array.from(event.target.files ?? []))}
-        />
-        <div inert={conflict} className="editor-board-content">
-          <div className="board-actions">
             <button
+              type="button"
               className="add-tier-button"
               disabled={project.tiers.length >= 30}
               onClick={() =>
@@ -388,6 +376,17 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               <Plus size={15} aria-hidden="true" /> Add a tier
             </button>
           </div>
+        </fieldset>
+        <input
+          className="sr-only"
+          ref={fileInput}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          multiple
+          aria-label="Choose images"
+          onChange={(event) => void addImages(Array.from(event.target.files ?? []))}
+        />
+        <div inert={conflict} className="editor-board-content">
           <TierBoard
             boardRef={boardRef}
             project={project}
