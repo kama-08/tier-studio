@@ -567,7 +567,7 @@ input:focus-visible {
   --surface-drop: #eff4e6;
   max-width: 1460px;
   margin: 0 auto;
-  padding: 40px 42px 24px;
+  padding: 24px 42px;
   background: var(--app-background);
   color: var(--color-ink);
 }
@@ -592,7 +592,7 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
 }
 .editor-title-block {
   min-width: 0;
@@ -632,7 +632,7 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin: 10px 0 18px;
+  margin: 0 0 12px;
 }
 .app-dialog.export-dialog {
   width: min(900px, calc(100vw - 32px));
@@ -642,7 +642,7 @@ input:focus-visible {
 .export-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 4px 16px;
   margin-bottom: 16px;
 }
 .export-controls > div {
@@ -652,6 +652,12 @@ input:focus-visible {
 .export-controls select {
   display: block;
   margin-top: 8px;
+}
+.export-controls .style-toggle {
+  flex-basis: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  cursor: pointer;
 }
 .export-preview {
   max-height: min(45vh, 420px);
@@ -1504,7 +1510,7 @@ input:focus-visible {
     padding: 0 30px;
   }
   .editor-page {
-    padding: 30px 25px 24px;
+    padding: 20px 25px 24px;
   }
   .editor-heading {
     align-items: flex-start;
@@ -1578,7 +1584,7 @@ input:focus-visible {
     font-size: 5px;
   }
   .editor-page {
-    padding: 28px 20px 24px;
+    padding: 16px 20px 24px;
   }
   .settings-page {
     padding: 35px 24px;

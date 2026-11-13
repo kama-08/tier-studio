@@ -150,6 +150,19 @@ export function ExportPreview({
             <option value={3}>3×</option>
           </select>
         </div>
+        <label className="style-toggle">
+          <input
+            type="checkbox"
+            checked={appearance.exportTitle}
+            onChange={(event) =>
+              execute({
+                type: 'set-appearance',
+                appearance: { ...appearance, exportTitle: event.target.checked },
+              })
+            }
+          />
+          Include title
+        </label>
       </div>
       <div className="export-preview" aria-busy={rendering}>
         {error ? (
@@ -170,8 +183,8 @@ export function ExportPreview({
               : ''}
       </output>
       <p className="dialog-help">
-        Fixed widths stay the same when you resize the editor. Change visible sections and
-        transparency in Customize.
+        Fixed widths stay the same when you resize the editor. Find more export options in
+        Customize.
       </p>
       <div className="dialog-actions">
         <Button onClick={onClose}>Close</Button>

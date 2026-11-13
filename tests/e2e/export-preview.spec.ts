@@ -72,6 +72,18 @@ test('PNG export ignores unused or hidden corrupt assets and previews a fixed ou
   expect(png.readUInt32BE(16)).toBe(1600);
   const height = png.readUInt32BE(20);
   expect(height).toBeCloseTo(previewHeight * 2, -1);
+  const includeTitle = dialog.getByRole('checkbox', { name: 'Include title', exact: true });
+  const preview = dialog.getByAltText('PNG export preview');
+  await expect(includeTitle).toBeChecked();
+  await includeTitle.uncheck();
+  await expect
+    .poll(async () => preview.evaluate((image: HTMLImageElement) => image.naturalHeight))
+    .toBe(previewHeight - 84);
+  const titlelessDownload = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'Download PNG', exact: true }).click();
+  const titleless = await readFile((await (await titlelessDownload).path())!);
+  expect(titleless.readUInt32BE(20)).toBe(height - 168);
+  await includeTitle.check();
   await dialog.getByRole('button', { name: 'Close', exact: true }).click();
   expect(await page.locator('.tier-board').boundingBox()).toEqual(before);
   await page.setViewportSize({ width: 390, height: 850 });
