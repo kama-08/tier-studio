@@ -24,7 +24,7 @@ test('keeps a selected theme across pages, dialogs, and reloads', async ({ page 
     const background = await page
       .locator('html')
       .evaluate((el) => getComputedStyle(el).backgroundColor);
-    for (const selector of ['#app-sidebar', '.editor-topbar', '.editor-page']) {
+    for (const selector of ['#app-sidebar', '.editor-page']) {
       await expect(page.locator(selector)).toHaveCSS('background-color', background);
     }
   };

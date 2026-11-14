@@ -207,29 +207,10 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
 
   return (
     <>
-      <header className="editor-topbar">
-        <div className="topbar-leading">
-          <SidebarToggle />
-        </div>
-        <div className="topbar-actions">
-          <ThemeToggle />
-          <output className="save-indicator" data-save={saveStatus}>
-            {saveStatus === 'saving' ? (
-              <LoaderCircle aria-hidden="true" size={14} className="animate-spin" />
-            ) : saveStatus === 'saved' ? (
-              <Check aria-hidden="true" size={14} />
-            ) : null}
-            {saveStatus === 'saved'
-              ? 'All changes saved'
-              : saveStatus === 'saving'
-                ? 'Saving…'
-                : 'Could not save'}
-          </output>
-        </div>
-      </header>
       <div className="editor-page">
-        <div className="editor-heading">
+        <header className="editor-heading">
           <div className="editor-title-block">
+            <SidebarToggle />
             <h1 className="sr-only">{project.title}</h1>
             <input
               className="project-title-input"
@@ -243,6 +224,28 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
                 if (event.key === 'Enter') event.currentTarget.blur();
               }}
             />
+          </div>
+          <div className="editor-heading-controls">
+            <ThemeToggle />
+            <output
+              className="save-indicator"
+              data-save={saveStatus}
+              title={saveStatus === 'saved' ? 'All changes saved' : undefined}
+            >
+              {saveStatus === 'saved' ? (
+                <>
+                  <Check aria-hidden="true" size={16} />
+                  <span className="sr-only">All changes saved</span>
+                </>
+              ) : saveStatus === 'saving' ? (
+                <>
+                  <LoaderCircle aria-hidden="true" size={14} className="animate-spin" />
+                  Saving…
+                </>
+              ) : (
+                'Could not save'
+              )}
+            </output>
           </div>
           <div className="editor-export-actions">
             <Button disabled={Boolean(busy)} onClick={() => void exportFile('project')}>
@@ -265,7 +268,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               <ScanEye aria-hidden="true" size={17} />
             </Button>
           </div>
-        </div>
+        </header>
         {saveError ? (
           <div role="alert" className="save-error-banner">
             <p>Your latest changes haven’t saved: {saveError}</p>
