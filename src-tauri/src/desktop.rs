@@ -12,6 +12,15 @@ pub(super) struct QuitState {
     approved: AtomicBool,
 }
 
+pub(super) fn has_update_config(config: &tauri::Config) -> bool {
+    cfg!(all(windows, target_arch = "x86_64")) && config.plugins.0.contains_key("updater")
+}
+
+#[tauri::command]
+pub(super) fn desktop_updates_enabled(app: AppHandle) -> bool {
+    has_update_config(app.config())
+}
+
 #[tauri::command]
 pub(super) fn request_quit(app: AppHandle) -> Result<(), String> {
     let state = app.state::<QuitState>();

@@ -9,12 +9,14 @@ export function Dialog({
   title,
   children,
   className = '',
+  dismissible = true,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
   className?: string;
+  dismissible?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -30,7 +32,7 @@ export function Dialog({
       aria-label={title}
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+        if (dismissible) onClose();
       }}
       onClose={onClose}
       className={`app-dialog ${className}`}
@@ -38,9 +40,11 @@ export function Dialog({
       <DesktopTitlebarHost open={open} />
       <div className="mb-6 flex items-center justify-between gap-4">
         <h2 className="font-display text-2xl">{title}</h2>
-        <Button variant="ghost" size="icon" aria-label="Close dialog" onClick={onClose}>
-          <X size={18} />
-        </Button>
+        {dismissible ? (
+          <Button variant="ghost" size="icon" aria-label="Close dialog" onClick={onClose}>
+            <X size={18} />
+          </Button>
+        ) : null}
       </div>
       {children}
     </dialog>

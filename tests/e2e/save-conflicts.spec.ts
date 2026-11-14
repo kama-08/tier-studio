@@ -23,6 +23,9 @@ test('a stale tab preserves its work as a backup and reloads the saved version',
   await expect(second.getByRole('alert')).toContainText('another tab');
   await expect(second.getByRole('button', { name: 'Add images', exact: true })).toBeDisabled();
   await expect(second.getByLabel('Project title', { exact: true })).toBeDisabled();
+  const boardTools = second.getByRole('group', { name: 'Board tools', exact: true });
+  await boardTools.getByRole('button', { name: 'Hide sidebar', exact: true }).click();
+  await expect(boardTools.getByRole('button', { name: 'Show sidebar', exact: true })).toBeEnabled();
 
   const downloading = second.waitForEvent('download');
   await second.getByRole('button', { name: 'Save project copy', exact: true }).click();

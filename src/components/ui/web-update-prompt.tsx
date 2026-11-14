@@ -43,14 +43,14 @@ export function WebUpdatePrompt() {
 
   if (!registration) return null;
   return (
-    <section className="web-update" aria-label="Application update" aria-busy={updating}>
-      <output className="web-update-heading">
+    <section className="update-notice" aria-label="Application update" aria-busy={updating}>
+      <output className="update-notice-heading">
         <RefreshCw size={16} aria-hidden="true" />
         <strong>New version available</strong>
       </output>
       <p>Update when you’re ready. Your project will be saved before reloading.</p>
       {error ? <p role="alert">{error}</p> : null}
-      <div className="web-update-actions">
+      <div className="update-notice-actions">
         <Button variant="primary" size="sm" disabled={updating} onClick={() => void applyUpdate()}>
           {updating ? 'Updating…' : 'Update now'}
         </Button>

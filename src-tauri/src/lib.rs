@@ -25,7 +25,8 @@ pub fn run() {
             desktop::request_quit,
             desktop::quit_ready,
             desktop::complete_quit,
-            desktop::cancel_quit
+            desktop::cancel_quit,
+            desktop::desktop_updates_enabled
         ])
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             desktop::show_main_window(app);
@@ -38,6 +39,13 @@ pub fn run() {
             desktop::setup(app)
         })
         .on_window_event(desktop::on_window_event);
+
+    #[cfg(all(windows, target_arch = "x86_64"))]
+    let builder = if desktop::has_update_config(context.config()) {
+        builder.plugin(tauri_plugin_updater::Builder::new().build())
+    } else {
+        builder
+    };
 
     let app = builder
         .plugin(tauri_plugin_dialog::init())

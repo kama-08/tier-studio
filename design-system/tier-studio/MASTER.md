@@ -17,7 +17,7 @@ Based on the Minimalism & Swiss Style direction from `ui-ux-pro-max` for a creat
 - Use the same workspace background for the sidebar, top bars, and page canvas in each theme.
 - Use Lucide SVGs with accessible names on icon-only controls. Project colors choose black or white ink by contrast; export reads the same computed styles.
 - Keep the library searchable and show the sample board only when there are no saved projects.
-- Put the sidebar toggle, theme switch, and save status in the project heading. Let export actions wrap below the title on narrow screens and keep save errors visible as text.
-- Keep the editor's original compact toolbar and neutral board surfaces, with the ranked count, reset, and **Add a tier** grouped at the end of the Board tools fieldset. Keep item options available without dragging. PNGs use the editor's palette.
+- Put the theme switch and save status in the project heading. Let export actions wrap below the title on narrow screens and keep save errors visible as text.
+- Start the Board tools fieldset with the sidebar toggle. Group the ranked count, reset, and **Add a tier** at the end. Keep item options available without dragging and use the same palette in the editor and exported PNGs.
 - Slide the sidebar horizontally on wide screens and collapse it as a top navigation bar on narrow screens. Make closed navigation inert immediately and skip the transition under reduced motion. Keep headings, actions, and toolbar groups able to wrap.
 - Keep visible keyboard focus, a skip link, and reduced motion. Recheck primary text contrast in both themes and verify narrow portrait, landscape, and desktop layouts.

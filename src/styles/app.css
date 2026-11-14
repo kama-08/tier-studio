@@ -586,7 +586,6 @@ input:focus-visible {
   gap: 12px;
   margin-bottom: 16px;
 }
-.editor-title-block,
 .editor-heading-controls,
 .editor-export-actions {
   display: flex;
@@ -1345,7 +1344,7 @@ input:focus-visible {
 .notice > svg {
   flex-shrink: 0;
 }
-.web-update {
+.update-notice {
   position: fixed;
   top: 96px;
   right: 24px;
@@ -1359,17 +1358,17 @@ input:focus-visible {
   font-size: 13px;
   z-index: 55;
 }
-.web-update-heading,
-.web-update-actions {
+.update-notice-heading,
+.update-notice-actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.web-update p {
+.update-notice p {
   margin: 10px 0;
   color: var(--color-secondary);
 }
-.web-update [role='alert'] {
+.update-notice [role='alert'] {
   color: var(--color-danger);
 }
 .busy-pill {

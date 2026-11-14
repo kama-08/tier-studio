@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { flushEditor } from '@/features/editor/editor-store';
-import { waitForOperations } from '@/services/operations';
+import { saveBeforeDesktopExit } from '@/platform/desktop-shutdown';
+import { isInstallingDesktopUpdate, useDesktopUpdates } from '@/app/desktop-updates';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -12,13 +12,14 @@ export function DesktopQuitGuard() {
   const inFlight = useRef(false);
   const quit = useCallback(async () => {
     if (inFlight.current) return;
+    if (isInstallingDesktopUpdate(useDesktopUpdates.getState().status)) {
+      await invoke('cancel_quit').catch(console.error);
+      return;
+    }
     inFlight.current = true;
-    // The project title commits on blur, so include the last typed value.
-    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     setStatus('saving');
     try {
-      await waitForOperations();
-      await flushEditor();
+      await saveBeforeDesktopExit();
       await invoke('complete_quit');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));

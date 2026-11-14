@@ -12,6 +12,7 @@ import { createPortal } from 'react-dom';
 import { Copy, Minus, Square, X } from 'lucide-react';
 import { useNotice } from '@/components/ui/notice';
 import { DesktopQuitGuard } from './desktop-quit-guard';
+import { DesktopUpdatePrompt } from './desktop-update-prompt';
 
 const TitlebarHostContext = createContext<((host: HTMLElement) => () => void) | null>(null);
 
@@ -128,6 +129,7 @@ export function DesktopFrame({ children }: { children: ReactNode }) {
         {host ? createPortal(titlebar, host) : titlebar}
         <div className="desktop-content">{children}</div>
         <DesktopQuitGuard />
+        <DesktopUpdatePrompt />
       </div>
     </TitlebarHostContext>
   );

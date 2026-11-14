@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { HardDrive, ShieldCheck, FolderOpen, Check, Palette, Monitor } from 'lucide-react';
+import { version } from '../../../package.json';
 import { projects, isDesktop } from '@/app/services';
 import { Button } from '@/components/ui/button';
 import { useNotice } from '@/components/ui/notice';
 import { ThemeOptions, ThemeToggle } from '@/components/ui/theme-controls';
 import { SidebarToggle } from '@/components/ui/sidebar-toggle';
 import { DesktopDownloadButton } from '@/components/ui/desktop-download';
+import { DesktopUpdateSettings } from './desktop-update-settings';
 
 export function SettingsPage() {
   const [count, setCount] = useState<number | null>(null);
@@ -113,7 +115,9 @@ export function SettingsPage() {
             </p>
           </div>
         </section>
-        {!isDesktop ? (
+        {isDesktop ? (
+          <DesktopUpdateSettings />
+        ) : (
           <section className="settings-card">
             <Monitor size={22} aria-hidden="true" />
             <div>
@@ -122,8 +126,8 @@ export function SettingsPage() {
               <DesktopDownloadButton />
             </div>
           </section>
-        ) : null}
-        <p className="settings-version">Tier Studio · v0.1</p>
+        )}
+        <p className="settings-version">Tier Studio · v{version}</p>
       </div>
     </>
   );

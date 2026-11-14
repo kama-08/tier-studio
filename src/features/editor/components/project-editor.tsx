@@ -210,7 +210,6 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
       <div className="editor-page">
         <header className="editor-heading">
           <div className="editor-title-block">
-            <SidebarToggle />
             <h1 className="sr-only">{project.title}</h1>
             <input
               className="project-title-input"
@@ -286,13 +285,14 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
             )}
           </div>
         ) : null}
-        <fieldset className="editor-toolbar" disabled={conflict}>
+        <fieldset className="editor-toolbar">
           <legend className="sr-only">Board tools</legend>
           <div className="toolbar-main">
+            <SidebarToggle />
             <Button
               variant="ghost"
               onClick={() => fileInput.current?.click()}
-              disabled={Boolean(busy)}
+              disabled={conflict || Boolean(busy)}
             >
               <ImagePlus aria-hidden="true" size={16} /> Add images
             </Button>
@@ -302,17 +302,21 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
                 setTextName('');
                 setTextOpen(true);
               }}
-              disabled={itemCount >= 2000}
+              disabled={conflict || itemCount >= 2000}
             >
               <Type aria-hidden="true" size={16} /> Text item
             </Button>
             <ItemShapePicker
               value={project.itemShape ?? 'square'}
-              disabled={Boolean(busy)}
+              disabled={conflict || Boolean(busy)}
               onChange={(shape) => execute({ type: 'set-item-shape', shape })}
             />
             <span className="toolbar-divider" aria-hidden="true" />
-            <Button variant="ghost" disabled={Boolean(busy)} onClick={() => setCustomizeOpen(true)}>
+            <Button
+              variant="ghost"
+              disabled={conflict || Boolean(busy)}
+              onClick={() => setCustomizeOpen(true)}
+            >
               <SlidersHorizontal aria-hidden="true" size={16} /> Customize
             </Button>
             <Button
@@ -320,7 +324,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               size="icon"
               aria-label="Undo"
               title="Undo (Ctrl/⌘ Z)"
-              disabled={!history?.past.length}
+              disabled={conflict || !history?.past.length}
               onClick={undo}
             >
               <Undo2 aria-hidden="true" size={17} />
@@ -330,7 +334,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               size="icon"
               aria-label="Redo"
               title="Redo (Ctrl/⌘ Shift Z)"
-              disabled={!history?.future.length}
+              disabled={conflict || !history?.future.length}
               onClick={redo}
             >
               <Redo2 aria-hidden="true" size={17} />
@@ -345,7 +349,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
               size="icon"
               aria-label="Reset ranking"
               title="Move all items to Unranked"
-              disabled={!rankedCount}
+              disabled={conflict || !rankedCount}
               onClick={() => setResetOpen(true)}
             >
               <RefreshCcw aria-hidden="true" size={15} />
@@ -353,7 +357,7 @@ export function ProjectEditor({ initialProject }: { initialProject: Project }) {
             <Button
               variant="ghost"
               className="add-tier-button"
-              disabled={project.tiers.length >= 30}
+              disabled={conflict || project.tiers.length >= 30}
               onClick={() =>
                 execute({
                   type: 'add-tier',
