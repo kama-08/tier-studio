@@ -18,8 +18,10 @@ jobs:
 
   windows:
     needs: checks
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: windows-latest
     timeout-minutes: 45
+    environment: desktop-release
     permissions:
       contents: write
     env:
@@ -40,15 +42,34 @@ jobs:
       - name: Validate release tag and versions
         shell: pwsh
         run: |
-          if ($env:GITHUB_REF -notlike 'refs/tags/*') {
-            throw 'Run this workflow from a version tag, not a branch.'
-          }
           bun run release:validate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build Windows x64 installer
-        run: bun run desktop:build:windows
-      - name: Prepare installer and checksum
-        run: bun run release:prepare
+        shell: pwsh
+        env:
+          TAURI_UPDATE_PUBLIC_KEY: ${{ vars.TAURI_UPDATE_PUBLIC_KEY }}
+        run: |
+          if (-not $env:TAURI_UPDATE_PUBLIC_KEY) {
+            throw 'Set TAURI_UPDATE_PUBLIC_KEY in the desktop-release environment before publishing.'
+          }
+          $config = Join-Path $env:RUNNER_TEMP 'tauri.updater.conf.json'
+          @{
+            plugins = @{
+              updater = @{
+                pubkey = $env:TAURI_UPDATE_PUBLIC_KEY.Trim()
+                endpoints = @("https://github.com/$env:GITHUB_REPOSITORY/releases/latest/download/latest.json")
+                requireSignedVersion = $true
+              }
+            }
+          } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $config -Encoding utf8
+          bun run tauri build --target x86_64-pc-windows-msvc --bundles nsis --config $config -- --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Sign installer and prepare update manifest
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          TAURI_UPDATE_PUBLIC_KEY: ${{ vars.TAURI_UPDATE_PUBLIC_KEY }}
+        run: bun run release:prepare --signed
       - uses: actions/upload-artifact@v4
         with:
           name: windows-x64-installer
@@ -73,7 +94,29 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           $installer = "release-artifacts/Tier-Studio-${version}-windows-x64-setup.exe"
-          gh release upload $tag $installer release-artifacts/Tier-Studio-windows-x64-setup.exe release-artifacts/SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --clobber
+          $files = @(
+            $installer
+            "$installer.sig"
+            'release-artifacts/Tier-Studio-windows-x64-setup.exe'
+            'release-artifacts/SHA256SUMS.txt'
+            'release-artifacts/latest.json'
+          )
+          gh release upload $tag @files --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $releaseId = gh release view $tag --repo $env:GITHUB_REPOSITORY --json databaseId --jq .databaseId
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $assetsJson = gh api "repos/$env:GITHUB_REPOSITORY/releases/$releaseId/assets?per_page=100"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $assets = $assetsJson | ConvertFrom-Json
+          foreach ($file in $files) {
+            $name = Split-Path -Leaf $file
+            $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
+            $asset = $assets | Where-Object { $_.name -ceq $name }
+            if ($asset.state -ne 'uploaded' -or $asset.digest -cne "sha256:$hash") {
+              throw "GitHub did not store the expected release asset: $name"
+            }
+          }
+
           gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --latest
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

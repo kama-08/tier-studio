@@ -73,7 +73,10 @@ The dialog downloads the Windows x64 installer directly and offers release notes
 GitHub source links. Official downloads work without environment configuration. The
 installer installs for the current account and includes an installation-folder selection
 page. Version 0.1.0 is unsigned, so Windows may display an unknown-publisher warning.
-Each release includes `SHA256SUMS.txt` to verify the installer download.
+Each release includes `SHA256SUMS.txt` to verify the installer download. Install the first
+updater-enabled version from GitHub. That version and later Windows builds check for updates
+on startup and from **Settings → Desktop updates**. Choose **Install update** when you're
+ready to save your changes and restart.
 
 Forks can copy `.env.example` to `.env.local` and change `VITE_PUBLIC_REPOSITORY_URL`.
 Use a repository URL on `github.com`; branch, release, and asset URLs are rejected.
@@ -141,20 +144,28 @@ localhost or changing the production domain; storage does not transfer between o
 
 Update the version in `package.json`, `src-tauri/Cargo.toml`, and
 `src-tauri/tauri.conf.json`, refresh `src-tauri/Cargo.lock` with Cargo, and add
-`docs/releases/X.Y.Z.md`. Commit and push those changes, then tag that commit:
+`docs/releases/X.Y.Z.md`. Commit and push those changes, then push a new version tag, for example:
 
 ```sh
-bun run release:validate v0.1.0
-git tag v0.1.0
-git push origin v0.1.0
+bun run release:validate v0.3.0
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
-Use the new version in place of `0.1.0` for later releases. The **Windows release**
-workflow runs the web/browser and native desktop checks, builds a release-mode Windows
-x64 NSIS installer, and publishes it with its SHA-256 checksum. It validates the tag
-against all three manifests and requires version-specific release notes. Assets upload
-to a draft before publication; reruns can resume a draft but cannot overwrite a published
-release. A manual workflow run must select an existing version tag.
+The [Windows release workflow](https://github.com/kama-08/tier-studio/actions/workflows/release.yml)
+runs the web and native desktop checks, validates the version tag against the three manifests,
+and builds the Windows x64 installer. It uploads the installer, SHA-256 checksums, updater
+signature, and `latest.json` manifest to a draft. GitHub Actions checks the uploaded asset
+digests before publishing the release. To retry a failed workflow, rerun it for the same tag.
+A published release requires a new version tag for further changes.
+
+Configure the signing key pair once per distribution. In GitHub Actions, create a
+`desktop-release` environment for version tags (`v*`). Set `TAURI_UPDATE_PUBLIC_KEY` as
+an environment variable and `TAURI_SIGNING_PRIVATE_KEY` as an environment secret. If the
+signing key has a password, store it as `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Keep a secure
+backup of the key and use the same pair for later releases so existing installations can
+verify them. The workflow embeds the public key and GitHub Releases endpoint, then signs
+the exact versioned installer referenced in the manifest. [Tauri updater signing guide](https://v2.tauri.app/plugin/updater/#signing-updates).
 
 For a local Windows build:
 
@@ -164,9 +175,9 @@ bun run release:prepare v0.1.0
 ```
 
 The versioned installer, stable download copy, and checksum file are written to
-ignored `release-artifacts/`.
-Signing certificates and automatic desktop updates are not configured. Installers
-are distributed through GitHub Releases; web updates are deployed separately to Cloudflare.
+ignored `release-artifacts/`. These local commands produce an installer for manual testing.
+The Windows release workflow enables in-app updates. Web updates are deployed separately to
+Cloudflare.
 
 ## Structure
 
